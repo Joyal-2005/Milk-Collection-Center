@@ -176,7 +176,7 @@ function renderApp() {
             </div>
 
             <!-- Mobile Drawer Menu -->
-            <div id="mobile-drawer" class="fixed inset-0 z-50 bg-slate-900/80 backdrop-blur-sm hidden md:hidden flex-col">
+            <div id="mobile-drawer" class="fixed inset-0 z-50 bg-slate-900/85 backdrop-blur-sm hidden md:hidden flex-col">
                 <div class="w-64 bg-slate-900 h-full flex flex-col p-4 text-white">
                     <div class="flex justify-between items-center mb-6">
                         <span class="text-xl font-bold text-emerald-400">Arun Traders</span>
@@ -254,7 +254,6 @@ function getViewTitle() {
 
 function renderSidebarContent() {
     const role = DEFAULT_STATE.currentUser.role;
-
     let navItems = '';
 
     if (role === 'admin') {
@@ -486,7 +485,6 @@ function renderCurrentView() {
 // DASHBOARD VIEW
 // ==========================================
 function renderDashboard() {
-    // Calculate KPIs
     const totalFarmers = DEFAULT_STATE.farmers.length;
     const todayCols = DEFAULT_STATE.collections.filter(c => c.date === '2024-05-20');
     const activeToday = new Set(todayCols.map(c => c.farmerId)).size;
@@ -494,8 +492,8 @@ function renderDashboard() {
     const morningMilk = todayCols.filter(c => c.shift === 'Morning').reduce((acc, c) => acc + c.litres, 0);
     const eveningMilk = todayCols.filter(c => c.shift === 'Evening').reduce((acc, c) => acc + c.litres, 0);
 
-    const avgFat = todayCols.length > (0) ? (todayCols.reduce((acc, c) => acc + c.fat, 0) / todayCols.length).toFixed(1) : "4.2";
-    const avgSnf = todayCols.length > (0) ? (todayCols.reduce((acc, c) => acc + c.snf, 0) / todayCols.length).toFixed(1) : "8.5";
+    const avgFat = todayCols.length > 0 ? (todayCols.reduce((acc, c) => acc + c.fat, 0) / todayCols.length).toFixed(1) : "4.2";
+    const avgSnf = todayCols.length > 0 ? (todayCols.reduce((acc, c) => acc + c.snf, 0) / todayCols.length).toFixed(1) : "8.5";
     const totalAmount = todayCols.reduce((acc, c) => acc + c.amount, 0);
 
     return `
@@ -651,7 +649,6 @@ function renderDashboard() {
     `;
 }
 
-// Initialize Charts after DOM render
 setTimeout(() => {
     initCharts();
 }, 100);
@@ -942,7 +939,7 @@ function viewFarmerProfile(id) {
                             </tr>
                         </thead>
                         <tbody class="divide-y">
-                            ${fCols.length === '0' ? '<tr><td colspan="6" class="p-4 text-center text-slate-500">No collection records found.</td></tr>' : fCols.map(c => `
+                            ${fCols.length === 0 ? '<tr><td colspan="6" class="p-4 text-center text-slate-500">No collection records found.</td></tr>' : fCols.map(c => `
                                 <tr>
                                     <td class="p-3">${c.date}</td>
                                     <td class="p-3">${c.shift}</td>
@@ -960,7 +957,7 @@ function viewFarmerProfile(id) {
 
         <div class="mt-6 flex justify-end gap-2 border-t pt-4">
             <button onclick="closeProfileModal()" class="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl font-semibold">Close</button>
-            <button onclick="alert('Statement downloaded successfully!')" class="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl font-semibold">Download Statement</button>
+            <button onclick="downloadStatement('${f.id}')" class="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl font-semibold">Download Statement</button>
         </div>
     `;
 
@@ -1078,7 +1075,6 @@ function calculateMilkRate() {
     const fat = parseFloat(document.getElementById('entry-fat').value) || 4.0;
     const litres = parseFloat(document.getElementById('entry-litres').value) || 10.0;
 
-    // Lookup rate from database rateCharts
     const matchingRate = DEFAULT_STATE.rateCharts.find(r => r.milkType === milkType && fat >= r.fatMin && fat <= r.fatMax);
     const rate = matchingRate ? matchingRate.rate : (milkType === 'Buffalo' ? 60.0 : 42.0);
     const amount = litres * rate;
@@ -1184,12 +1180,16 @@ function renderReceiptModal() {
 
                 <div class="flex gap-2 print:hidden">
                     <button onclick="window.print()" class="flex-1 bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold py-2.5 rounded-xl text-xs transition">Print Receipt</button>
-                    <button onclick="alert('PDF downloaded successfully!')" class="flex-1 bg-sky-600 hover:bg-sky-700 text-white font-semibold py-2.5 rounded-xl text-xs transition">Download PDF</button>
+                    <button onclick="downloadReceiptPDF()" class="flex-1 bg-sky-600 hover:bg-sky-700 text-white font-semibold py-2.5 rounded-xl text-xs transition">Download PDF</button>
                     <button onclick="closeReceiptModal()" class="flex-1 bg-emerald-600 hover:bg-emerald-700 text-white font-semibold py-2.5 rounded-xl text-xs transition">Done</button>
                 </div>
             </div>
         </div>
     `;
+}
+
+function downloadReceiptPDF() {
+    window.print();
 }
 
 function closeReceiptModal() {
@@ -1351,7 +1351,7 @@ function renderLedgerPage() {
                     <p class="text-xs text-slate-500 mt-0.5">Opening balance, milk earnings, bonuses, deductions, advances, and closing balance.</p>
                 </div>
                 <div class="flex gap-2">
-                    <button onclick="alert('Statement downloaded')" class="bg-slate-100 hover:bg-slate-200 px-4 py-2.5 rounded-xl text-xs font-semibold text-slate-700">Download Statement</button>
+                    <button onclick="downloadStatement()" class="bg-slate-100 hover:bg-slate-200 px-4 py-2.5 rounded-xl text-xs font-semibold text-slate-700">Download Statement</button>
                     <button onclick="window.print()" class="bg-emerald-600 hover:bg-emerald-700 text-white px-4 py-2.5 rounded-xl text-xs font-semibold shadow">Print Ledger</button>
                 </div>
             </div>
@@ -1477,7 +1477,7 @@ function renderReportsPage() {
                     <p class="text-xs text-slate-500 mt-0.5">Generate, filter and export daily, monthly, quality and payment reports.</p>
                 </div>
                 <div class="flex gap-2">
-                    <button onclick="alert('Exported to Excel successfully!')" class="bg-emerald-600 hover:bg-emerald-700 text-white px-4 py-2.5 rounded-xl text-xs font-semibold shadow">Export Excel</button>
+                    <button onclick="downloadStatement()" class="bg-emerald-600 hover:bg-emerald-700 text-white px-4 py-2.5 rounded-xl text-xs font-semibold shadow">Export Excel</button>
                     <button onclick="window.print()" class="bg-slate-100 hover:bg-slate-200 px-4 py-2.5 rounded-xl text-xs font-semibold text-slate-700">Download PDF</button>
                 </div>
             </div>
@@ -1485,7 +1485,7 @@ function renderReportsPage() {
             <div class="dairy-card p-6 grid grid-cols-1 sm:grid-cols-4 gap-4">
                 <div>
                     <label class="block text-xs font-semibold text-slate-700 mb-1">Report Type</label>
-                    <select class="w-full px-3 py-2 border rounded-xl text-xs bg-slate-50">
+                    <select id="report-type-select" class="w-full px-3 py-2 border rounded-xl text-xs bg-slate-50">
                         <option>Daily Collection Report</option>
                         <option>Morning Collection Report</option>
                         <option>Evening Collection Report</option>
@@ -1497,24 +1497,116 @@ function renderReportsPage() {
                 </div>
                 <div>
                     <label class="block text-xs font-semibold text-slate-700 mb-1">From Date</label>
-                    <input type="date" value="2024-05-01" class="w-full px-3 py-2 border rounded-xl text-xs bg-slate-50">
+                    <input type="date" id="report-from-date" value="2024-05-01" class="w-full px-3 py-2 border rounded-xl text-xs bg-slate-50">
                 </div>
                 <div>
                     <label class="block text-xs font-semibold text-slate-700 mb-1">To Date</label>
-                    <input type="date" value="2024-05-20" class="w-full px-3 py-2 border rounded-xl text-xs bg-slate-50">
+                    <input type="date" id="report-to-date" value="2024-05-20" class="w-full px-3 py-2 border rounded-xl text-xs bg-slate-50">
                 </div>
                 <div class="flex items-end">
-                    <button onclick="alert('Report generated!')" class="w-full bg-slate-900 hover:bg-slate-800 text-white py-2 rounded-xl text-xs font-semibold shadow">Generate Report</button>
+                    <button onclick="runGenerateReport()" class="w-full bg-slate-900 hover:bg-slate-800 text-white py-2 rounded-xl text-xs font-semibold shadow">Generate Report</button>
                 </div>
             </div>
 
-            <div class="dairy-card p-6 text-center py-12">
-                <div class="text-4xl mb-3">📈</div>
-                <h3 class="font-bold text-slate-900 text-base">Select report parameters above and click Generate Report</h3>
-                <p class="text-xs text-slate-500 mt-1">All reports are fully formatted for Arun Traders & ${DEFAULT_STATE.settings.companySupport}</p>
+            <div id="report-results-container">
+                <div class="dairy-card p-6 text-center py-12">
+                    <div class="text-4xl mb-3">📈</div>
+                    <h3 class="font-bold text-slate-900 text-base">Select report parameters above and click Generate Report</h3>
+                    <p class="text-xs text-slate-500 mt-1">All reports are fully formatted for Arun Traders & ${DEFAULT_STATE.settings.companySupport}</p>
+                </div>
             </div>
         </div>
     `;
+}
+
+function runGenerateReport() {
+    const container = document.getElementById('report-results-container');
+    if (!container) return;
+
+    const reportType = document.getElementById('report-type-select')?.value || 'Daily Collection Report';
+    const cols = DEFAULT_STATE.collections;
+    const totalLitres = cols.reduce((acc, c) => acc + c.litres, 0);
+    const totalAmount = cols.reduce((acc, c) => acc + c.amount, 0);
+
+    container.innerHTML = `
+        <div class="dairy-card p-6 space-y-4">
+            <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center border-b pb-4 gap-2">
+                <div>
+                    <h3 class="font-bold text-slate-900 text-base">${reportType}</h3>
+                    <p class="text-xs text-slate-500">Generated for Arun Traders • Total Records: ${cols.length}</p>
+                </div>
+                <div class="flex gap-2">
+                    <button onclick="downloadStatement()" class="bg-emerald-600 hover:bg-emerald-700 text-white px-3 py-1.5 rounded-lg text-xs font-semibold">Export CSV</button>
+                    <button onclick="window.print()" class="bg-slate-100 hover:bg-slate-200 text-slate-700 px-3 py-1.5 rounded-lg text-xs font-semibold">Print Report</button>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-2 sm:grid-cols-3 gap-4">
+                <div class="bg-slate-50 p-3 rounded-xl border">
+                    <div class="text-[11px] text-slate-500 font-semibold">Total Quantity</div>
+                    <div class="text-lg font-bold text-slate-900 mt-1">${totalLitres} Litres</div>
+                </div>
+                <div class="bg-slate-50 p-3 rounded-xl border">
+                    <div class="text-[11px] text-slate-500 font-semibold">Total Payable Amount</div>
+                    <div class="text-lg font-bold text-emerald-600 mt-1">₹${totalAmount.toFixed(2)}</div>
+                </div>
+                <div class="bg-slate-50 p-3 rounded-xl border">
+                    <div class="text-[11px] text-slate-500 font-semibold">Average FAT / SNF</div>
+                    <div class="text-lg font-bold text-slate-900 mt-1">4.2% / 8.5%</div>
+                </div>
+            </div>
+
+            <div class="overflow-x-auto max-h-96 border rounded-xl">
+                <table class="w-full text-left border-collapse text-xs">
+                    <thead class="bg-slate-100 sticky top-0">
+                        <tr>
+                            <th class="p-3">Record ID</th>
+                            <th class="p-3">Farmer Name</th>
+                            <th class="p-3">Date & Shift</th>
+                            <th class="p-3">Milk Type</th>
+                            <th class="p-3">Litres</th>
+                            <th class="p-3">FAT / SNF</th>
+                            <th class="p-3">Rate</th>
+                            <th class="p-3">Amount</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y font-medium text-slate-700">
+                        ${cols.map(c => `
+                            <tr>
+                                <td class="p-3 font-bold text-emerald-700">${c.id}</td>
+                                <td class="p-3 font-bold text-slate-900">${c.farmerName} (${c.farmerId})</td>
+                                <td class="p-3 text-slate-500">${c.date} | ${c.shift}</td>
+                                <td class="p-3">${c.milkType}</td>
+                                <td class="p-3 font-bold">${c.litres} L</td>
+                                <td class="p-3">${c.fat}% / ${c.snf}%</td>
+                                <td class="p-3">₹${c.rate}</td>
+                                <td class="p-3 font-bold text-emerald-600">₹${c.amount.toFixed(2)}</td>
+                            </tr>
+                        `).join('')}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    `;
+}
+
+function downloadStatement(farmerId = null) {
+    let csv = "Arun Traders - Financial & Collection Statement\nDate,Farmer ID,Farmer Name,Shift,Milk Type,Litres,FAT,SNF,Rate,Amount\n";
+    let records = DEFAULT_STATE.collections;
+    if (farmerId) {
+        records = records.filter(c => c.farmerId === farmerId);
+    }
+    records.forEach(c => {
+        csv += `${c.date},${c.farmerId},${c.farmerName},${c.shift},${c.milkType},${c.litres},${c.fat},${c.snf},${c.rate},${c.amount}\n`;
+    });
+    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `ArunTraders_Statement_${farmerId || 'All'}_${new Date().toISOString().split('T')[0]}.csv`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
 }
 
 // ==========================================
@@ -1583,8 +1675,6 @@ function renderFarmerDashboard() {
     const farmer = DEFAULT_STATE.farmers.find(f => f.id === farmerId) || DEFAULT_STATE.farmers[0];
     const fCols = DEFAULT_STATE.collections.filter(c => c.farmerId === farmer.id);
     const todayCol = fCols.find(c => c.date === '2024-05-20') || { litres: 12.5, fat: 4.2, snf: 8.5, amount: 550.0 };
-    const totalLitres = fCols.reduce((acc, c) => acc + c.litres, 0);
-    const totalEarnings = fCols.reduce((acc, c) => acc + c.amount, 0);
 
     return `
         <div class="space-y-6">
@@ -1621,7 +1711,7 @@ function renderFarmerDashboard() {
             <div class="dairy-card p-6">
                 <div class="flex justify-between items-center mb-4">
                     <h3 class="font-bold text-slate-900">My Collection History</h3>
-                    <button onclick="alert('Statement downloaded')" class="bg-emerald-600 hover:bg-emerald-700 text-white px-3 py-1.5 rounded-lg text-xs font-semibold">Download Statement</button>
+                    <button onclick="downloadStatement('${farmer.id}')" class="bg-emerald-600 hover:bg-emerald-700 text-white px-3 py-1.5 rounded-lg text-xs font-semibold">Download Statement</button>
                 </div>
                 <div class="overflow-x-auto">
                     <table class="w-full text-left border-collapse text-xs">
