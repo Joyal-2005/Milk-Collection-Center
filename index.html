@@ -12,7 +12,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Noto+Sans+Tamil:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
         :root {
-            --primary-green: #10b981;
+            --primary-green: #059669;
             --primary-dark: #065f46;
             --dairy-blue: #0284c7;
             --dairy-bg: #f8fafc;
@@ -41,23 +41,18 @@
             background: #ffffff;
             border: 1px solid #e2e8f0;
             border-radius: 1rem;
-            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.04), 0 2px 4px -1px rgba(0, 0, 0, 0.02);
             transition: all 0.2s ease-in-out;
         }
         .dairy-card:hover {
-            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.08), 0 4px 6px -2px rgba(0, 0, 0, 0.04);
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.07), 0 4px 6px -2px rgba(0, 0, 0, 0.03);
         }
         @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(6px); }
+            from { opacity: 0; transform: translateY(4px); }
             to { opacity: 1; transform: translateY(0); }
         }
         .animate-fade-in {
-            animation: fadeIn 0.3s ease-out forwards;
-        }
-        @media print {
-            body * { visibility: hidden; }
-            #printable-receipt, #printable-receipt * { visibility: visible; }
-            #printable-receipt { position: absolute; left: 0; top: 0; width: 100%; margin: 0; padding: 20px; background: white; }
+            animation: fadeIn 0.25s ease-out forwards;
         }
     </style>
 </head>
@@ -67,14 +62,14 @@
     <div id="app-root"></div>
 
     <!-- Mobile Sticky Bottom Quick Action Bar -->
-    <div id="mobile-quick-bar" class="md:hidden fixed bottom-0 left-0 right-0 bg-white/95 backdrop-blur-md border-t border-slate-200 p-2.5 flex justify-around items-center z-45 shadow-lg hidden">
+    <div id="mobile-quick-bar" class="md:hidden fixed bottom-0 left-0 right-0 bg-white/95 backdrop-blur-md border-t border-slate-200 p-2.5 flex justify-around items-center z-40 shadow-lg hidden">
         <button onclick="setView('feed_sales')" class="flex flex-col items-center text-slate-700 hover:text-emerald-600 text-[10px] font-bold">
             <span class="text-lg">🌾</span> Feed Ledger
         </button>
-        <button onclick="openFeedSaleModal()" class="flex flex-col items-center bg-emerald-600 text-white px-3 py-1.5 rounded-xl text-[11px] font-bold shadow">
+        <button onclick="openFeedSaleModal()" class="flex flex-col items-center bg-emerald-600 text-white px-3.5 py-1.5 rounded-xl text-[11px] font-bold shadow">
             <span class="text-base">+</span> New Sale
         </button>
-        <button onclick="openAddCustomerFromSaleModal()" class="flex flex-col items-center text-slate-700 hover:text-emerald-600 text-[10px] font-bold">
+        <button onclick="openFeedSaleModal(); switchModalView('add-customer');" class="flex flex-col items-center text-slate-700 hover:text-emerald-600 text-[10px] font-bold">
             <span class="text-lg">👤+</span> Add Customer
         </button>
         <button onclick="setView('admin_dashboard')" class="flex flex-col items-center text-slate-700 hover:text-emerald-600 text-[10px] font-bold">
@@ -85,7 +80,7 @@
     <!-- Application Core Script -->
     <script>
         // Arun Traders - Milk Collection & Society Management System
-        // Mobile-First Responsive Architecture with Integrated Customer Credit & Balance Management
+        // Professional UI with VKA Milk Branding & Unified Same-Popup Modal Flows
 
         document.addEventListener('DOMContentLoaded', () => {
             initializeApp();
@@ -96,7 +91,7 @@
             currentView: 'login',
             settings: {
                 societyName: "Arun Traders – Milk Collection & Society Management System",
-                companySupport: "Supported by VK Milk",
+                companySupport: "Supported by VKA Milk",
                 tamilName: "அருண் டிரேடர்ஸ்",
                 tamilSub: "பால் சேகரிப்பு மையம்",
                 tamilSupport: "VKA Milk ஆதரவுடன்",
@@ -262,7 +257,7 @@
                     <aside class="hidden md:flex flex-col w-64 bg-slate-900 text-slate-100 border-r border-slate-800 shrink-0">
                         ${renderSidebarContent()}
                     </aside>
-                    <div class="md:hidden flex items-center justify-between bg-slate-900 text-white p-4 sticky top-0 z-40">
+                    <div class="md:hidden flex items-center justify-between bg-slate-900 text-white p-4 sticky top-0 z-40 shadow">
                         <div class="flex items-center space-x-2">
                             <span class="text-base font-bold text-emerald-400">🥛 Arun Traders</span>
                         </div>
@@ -282,18 +277,24 @@
                         </div>
                     </div>
                     <div class="flex-1 flex flex-col min-w-0">
-                        <header class="bg-white border-b border-slate-200 h-16 flex items-center justify-between px-4 md:px-6 shadow-sm">
-                            <div class="flex items-center space-x-2 truncate">
-                                <h1 class="text-sm md:text-lg font-bold text-slate-800 truncate">
-                                    <span>${getViewTitle()}</span>
-                                </h1>
-                            </div>
-                            <div class="flex items-center space-x-3">
-                                <div class="text-right hidden sm:block">
-                                    <div class="text-sm font-semibold text-slate-900">${DEFAULT_STATE.currentUser.name}</div>
-                                    <div class="text-xs text-slate-500 capitalize font-medium">${DEFAULT_STATE.currentUser.role}</div>
+                        <!-- Professional Header -->
+                        <header class="bg-gradient-to-r from-emerald-800 via-emerald-900 to-teal-900 text-white h-16 md:h-20 flex items-center justify-between px-4 md:px-8 shadow-md">
+                            <div class="flex items-center space-x-3 truncate">
+                                <div class="hidden sm:flex items-center justify-center w-10 h-10 bg-white/10 rounded-xl text-xl">🥛</div>
+                                <div>
+                                    <h1 class="text-base md:text-xl font-extrabold tracking-tight truncate flex items-center gap-2">
+                                        <span>Arun Traders</span>
+                                        <span class="text-[10px] md:text-xs bg-emerald-500/30 text-emerald-200 px-2.5 py-0.5 rounded-full font-semibold border border-emerald-400/30">VKA Milk</span>
+                                    </h1>
+                                    <p class="text-[11px] text-emerald-200/90 hidden sm:block tamil-text">அருண் டிரேடர்ஸ் • பால் சேகரிப்பு மையம் & தீவன நிலையம்</p>
                                 </div>
-                                <button onclick="handleLogout()" class="bg-rose-50 hover:bg-rose-100 text-rose-600 px-3 py-1.5 rounded-lg text-xs md:text-sm font-medium transition">
+                            </div>
+                            <div class="flex items-center space-x-4">
+                                <div class="text-right hidden sm:block">
+                                    <div class="text-sm font-semibold text-white">${DEFAULT_STATE.currentUser.name}</div>
+                                    <div class="text-xs text-emerald-200 capitalize font-medium">${DEFAULT_STATE.currentUser.role}</div>
+                                </div>
+                                <button onclick="handleLogout()" class="bg-white/10 hover:bg-white/20 text-white px-3.5 py-2 rounded-xl text-xs md:text-sm font-semibold transition border border-white/20">
                                     Logout
                                 </button>
                             </div>
@@ -302,8 +303,8 @@
                             ${renderCurrentView()}
                         </main>
                         <footer class="bg-white border-t border-slate-200 py-3 px-4 text-center text-xs text-slate-500 flex flex-col sm:flex-row justify-between items-center gap-1">
-                            <div>© ${new Date().getFullYear()} Arun Traders – Milk Collection System</div>
-                            <div class="tamil-text text-emerald-700 font-medium">அருண் டிரேடர்ஸ் | VKA Milk ஆதரவுடன்</div>
+                            <div>© ${new Date().getFullYear()} Arun Traders – Milk Collection & Society Management System</div>
+                            <div class="tamil-text text-emerald-700 font-medium">அருண் டிரேடர்ஸ் | பால் சேகரிப்பு மையம் | VKA Milk ஆதரவுடன்</div>
                         </footer>
                     </div>
                 </div>
@@ -392,7 +393,7 @@
                 <div class="p-6 border-b border-slate-800">
                     <div class="text-lg font-bold text-emerald-400">Arun Traders</div>
                     <div class="text-xs text-slate-400">Milk Collection System</div>
-                    <div class="tamil-text text-xs text-emerald-300 mt-1">அருண் டிரேடர்ஸ் - VKA Milk</div>
+                    <div class="tamil-text text-xs text-emerald-300 mt-1">அருண் டிரேடர்ஸ் - VKA Milk ஆதரவுடன்</div>
                 </div>
                 <nav class="flex-1 p-4 space-y-1 overflow-y-auto">
                     ${navItems}
@@ -419,7 +420,11 @@
                             <h2 class="text-xl md:text-2xl font-bold text-slate-900 tracking-tight">Arun Traders</h2>
                             <p class="text-xs md:text-sm font-medium text-slate-600 mt-1">Milk Collection & Society Management System</p>
                             <div class="mt-2 inline-block bg-emerald-600 text-white text-xs px-3 py-1 rounded-full font-semibold shadow">
-                                ${DEFAULT_STATE.settings.companySupport}
+                                Supported by VKA Milk
+                            </div>
+                            <div class="tamil-text text-emerald-700 font-bold text-sm mt-2">
+                                அருண் டிரேடர்ஸ் • பால் சேகரிப்பு மையம்<br>
+                                <span class="text-xs font-normal text-slate-600">VKA Milk ஆதரவுடன்</span>
                             </div>
                         </div>
 
@@ -672,7 +677,7 @@
                         </div>
                     </div>` : ''}
 
-                    <!-- Feed Sales & Credit Transactions Ledger (Responsive Stacked Cards on Mobile) -->
+                    <!-- Feed Sales & Credit Transactions Ledger -->
                     <div class="dairy-card overflow-hidden">
                         <div class="p-4 border-b flex flex-col sm:flex-row justify-between items-center gap-3">
                             <h3 class="font-bold text-slate-900 text-sm md:text-base">Complete Feed Sales Ledger (${sales.length})</h3>
@@ -739,119 +744,121 @@
                     </div>
                 </div>
 
-                <!-- New Feed Sale Modal (with + Add New Customer option) -->
-                <div id="feed-sale-modal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm hidden items-center justify-center p-3 z-50">
-                    <div class="bg-white rounded-2xl max-w-lg w-full p-5 md:p-6 shadow-2xl max-h-[95vh] overflow-y-auto">
-                        <div class="flex justify-between items-center mb-4 border-b pb-3">
-                            <h3 class="text-base md:text-lg font-bold text-slate-900">New Feed Sale & Credit Entry</h3>
-                            <button onclick="closeFeedSaleModal()" class="text-slate-400 hover:text-slate-700 font-bold text-xl">✕</button>
-                        </div>
-                        <form id="feed-sale-form" onsubmit="submitFeedSale(event)" class="space-y-4 text-xs md:text-sm">
-                            <div>
-                                <label class="block font-semibold text-slate-700 mb-1">Select Customer / Farmer</label>
-                                <select id="fs-farmer-id" onchange="handleCustomerSelectChange(this.value)" required class="w-full px-3.5 py-2.5 border rounded-xl bg-slate-50 font-medium">
-                                    <option value="" disabled selected>-- Select Customer --</option>
-                                    <option value="ADD_NEW" class="font-bold text-emerald-700 bg-emerald-50">➕ + Add New Customer</option>
-                                    ${DEFAULT_STATE.farmers.map(f => `<option value="${f.id}">${f.id} - ${f.name} (${f.village})</option>`).join('')}
-                                </select>
-                            </div>
+                <!-- Unified Same-Popup Modal for Feed Sale & Add Customer -->
+                <div id="feed-sale-modal" class="fixed inset-0 bg-slate-950/70 backdrop-blur-sm hidden items-center justify-center p-3 z-50 overflow-y-auto">
+                    <div class="bg-white rounded-2xl max-w-lg w-full p-5 md:p-6 shadow-2xl my-auto">
 
-                            <!-- Display Existing Outstanding Balance if customer selected (Rule 4) -->
-                            <div id="existing-balance-banner" class="hidden bg-amber-50 border border-amber-200 p-3 rounded-xl text-amber-900 text-xs">
-                                ⚠️ <span class="font-bold" id="banner-customer-name">Customer</span> has an existing outstanding balance of <span class="font-extrabold text-rose-600" id="banner-customer-due">₹0</span>.
+                        <!-- VIEW 1: Feed Sale Form -->
+                        <div id="modal-view-sale" class="space-y-4">
+                            <div class="flex justify-between items-center border-b pb-3">
+                                <h3 class="text-base md:text-lg font-bold text-slate-900">New Feed Sale & Credit Entry</h3>
+                                <button onclick="closeFeedSaleModal()" class="text-slate-400 hover:text-slate-700 font-bold text-xl">✕</button>
                             </div>
-
-                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                            <form id="feed-sale-form" onsubmit="submitFeedSale(event)" class="space-y-4 text-xs md:text-sm">
                                 <div>
-                                    <label class="block font-semibold text-slate-700 mb-1">Select Feed Variety</label>
-                                    <select id="fs-feed-id" onchange="updateFeedSaleCalc()" required class="w-full px-3.5 py-2.5 border rounded-xl bg-slate-50 font-medium">
-                                        ${DEFAULT_STATE.feedProducts.map(p => `<option value="${p.id}" data-price="${p.price}">${p.name} (₹${p.price})</option>`).join('')}
+                                    <label class="block font-semibold text-slate-700 mb-1">Select Customer / Farmer</label>
+                                    <select id="fs-farmer-id" onchange="handleCustomerSelectChange(this.value)" required class="w-full px-3.5 py-2.5 border rounded-xl bg-slate-50 font-medium">
+                                        <option value="" disabled selected>-- Select Customer --</option>
+                                        <option value="ADD_NEW" class="font-bold text-emerald-700 bg-emerald-50">➕ + Add New Customer</option>
+                                        ${DEFAULT_STATE.farmers.map(f => `<option value="${f.id}">${f.id} - ${f.name} (${f.village})</option>`).join('')}
                                     </select>
                                 </div>
-                                <div>
-                                    <label class="block font-semibold text-slate-700 mb-1">Number of Bags</label>
-                                    <input type="number" id="fs-bags" value="1" min="1" required oninput="updateFeedSaleCalc()" class="w-full px-3.5 py-2.5 border rounded-xl bg-slate-50 font-bold">
-                                </div>
-                            </div>
 
-                            <div class="grid grid-cols-2 gap-3 bg-slate-50 p-3.5 rounded-xl border">
-                                <div>
-                                    <span class="text-slate-500 font-medium text-[11px]">Total Feed Bill:</span>
-                                    <div class="text-lg font-bold text-slate-900 mt-0.5">₹<span id="fs-display-total">1450</span></div>
+                                <div id="existing-balance-banner" class="hidden bg-amber-50 border border-amber-200 p-3 rounded-xl text-amber-900 text-xs">
+                                    ⚠️ <span class="font-bold" id="banner-customer-name">Customer</span> has an existing outstanding balance of <span class="font-extrabold text-rose-600" id="banner-customer-due">₹0</span>.
                                 </div>
-                                <div>
-                                    <label class="block font-semibold text-slate-700 mb-1 text-[11px]">Amount Paid Now (₹)</label>
-                                    <input type="number" id="fs-paid" value="0" min="0" required oninput="updateFeedSaleCalc()" class="w-full px-2.5 py-2 border rounded-xl bg-white font-bold text-emerald-600 text-sm">
-                                </div>
-                            </div>
 
-                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                                <div>
-                                    <label class="block font-semibold text-slate-700 mb-1">Payment Mode</label>
-                                    <select id="fs-mode" class="w-full px-3.5 py-2.5 border rounded-xl bg-slate-50 font-medium">
-                                        <option value="Cash (Hand)">Cash (In Hand)</option>
-                                        <option value="Online UPI">Online Pay (UPI / Bank)</option>
-                                        <option value="Partial Payment">Partial Payment (Credit)</option>
-                                        <option value="Credit / Pending">Full Credit (Pending)</option>
-                                    </select>
+                                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                    <div>
+                                        <label class="block font-semibold text-slate-700 mb-1">Select Feed Variety</label>
+                                        <select id="fs-feed-id" onchange="updateFeedSaleCalc()" required class="w-full px-3.5 py-2.5 border rounded-xl bg-slate-50 font-medium">
+                                            ${DEFAULT_STATE.feedProducts.map(p => `<option value="${p.id}" data-price="${p.price}">${p.name} (₹${p.price})</option>`).join('')}
+                                        </select>
+                                    </div>
+                                    <div>
+                                        <label class="block font-semibold text-slate-700 mb-1">Number of Bags</label>
+                                        <input type="number" id="fs-bags" value="1" min="1" required oninput="updateFeedSaleCalc()" class="w-full px-3.5 py-2.5 border rounded-xl bg-slate-50 font-bold">
+                                    </div>
                                 </div>
-                                <div>
-                                    <label class="block font-semibold text-slate-700 mb-1">New Sale Balance Due</label>
-                                    <div class="text-lg font-extrabold text-rose-600 mt-1.5">₹<span id="fs-display-balance">1450</span></div>
+
+                                <div class="grid grid-cols-2 gap-3 bg-slate-50 p-3.5 rounded-xl border">
+                                    <div>
+                                        <span class="text-slate-500 font-medium text-[11px]">Total Feed Bill:</span>
+                                        <div class="text-lg font-bold text-slate-900 mt-0.5">₹<span id="fs-display-total">1450</span></div>
+                                    </div>
+                                    <div>
+                                        <label class="block font-semibold text-slate-700 mb-1 text-[11px]">Amount Paid Now (₹)</label>
+                                        <input type="number" id="fs-paid" value="0" min="0" required oninput="updateFeedSaleCalc()" class="w-full px-2.5 py-2 border rounded-xl bg-white font-bold text-emerald-600 text-sm">
+                                    </div>
                                 </div>
-                            </div>
 
-                            <div class="flex justify-end gap-2 pt-3 border-t">
-                                <button type="button" onclick="closeFeedSaleModal()" class="px-4 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl font-semibold">Cancel</button>
-                                <button type="submit" class="px-5 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl font-semibold shadow">Save Feed Sale Entry</button>
-                            </div>
-                        </form>
-                    </div>
-                </div>
+                                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                    <div>
+                                        <label class="block font-semibold text-slate-700 mb-1">Payment Mode</label>
+                                        <select id="fs-mode" class="w-full px-3.5 py-2.5 border rounded-xl bg-slate-50 font-medium">
+                                            <option value="Cash (Hand)">Cash (In Hand)</option>
+                                            <option value="Online UPI">Online Pay (UPI / Bank)</option>
+                                            <option value="Partial Payment">Partial Payment (Credit)</option>
+                                            <option value="Credit / Pending">Full Credit (Pending)</option>
+                                        </select>
+                                    </div>
+                                    <div>
+                                        <label class="block font-semibold text-slate-700 mb-1">New Sale Balance Due</label>
+                                        <div class="text-lg font-extrabold text-rose-600 mt-1.5">₹<span id="fs-display-balance">1450</span></div>
+                                    </div>
+                                </div>
 
-                <!-- New Customer Quick Modal (Requirement 3) -->
-                <div id="quick-customer-modal" class="fixed inset-0 bg-slate-900/70 backdrop-blur-sm hidden items-center justify-center p-3 z-60">
-                    <div class="bg-white rounded-2xl max-w-md w-full p-6 shadow-2xl">
-                        <div class="flex justify-between items-center mb-4 border-b pb-3">
-                            <h3 class="text-base font-bold text-slate-900">Add New Customer</h3>
-                            <button onclick="closeQuickCustomerModal()" class="text-slate-400 hover:text-slate-700 font-bold text-xl">✕</button>
+                                <div class="flex justify-end gap-2 pt-3 border-t">
+                                    <button type="button" onclick="closeFeedSaleModal()" class="px-4 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl font-semibold">Cancel</button>
+                                    <button type="submit" class="px-5 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl font-semibold shadow">Save Feed Sale Entry</button>
+                                </div>
+                            </form>
                         </div>
-                        <form id="quick-customer-form" onsubmit="submitQuickCustomer(event)" class="space-y-3 text-xs">
-                            <div class="grid grid-cols-2 gap-3">
-                                <div>
-                                    <label class="block font-semibold text-slate-700 mb-1">Customer ID</label>
-                                    <input type="text" id="qc-id" value="F0${DEFAULT_STATE.farmers.length + 1}" required class="w-full px-3 py-2 border rounded-xl bg-slate-50">
+
+                        <!-- VIEW 2: Add Customer Form (Inside Same Popup!) -->
+                        <div id="modal-view-customer" class="space-y-4 hidden">
+                            <div class="flex justify-between items-center border-b pb-3">
+                                <h3 class="text-base md:text-lg font-bold text-slate-900">Add New Customer</h3>
+                                <button onclick="switchModalView('sale')" class="text-slate-400 hover:text-slate-700 font-bold text-xl">✕</button>
+                            </div>
+                            <form id="quick-customer-form" onsubmit="submitQuickCustomer(event)" class="space-y-3 text-xs md:text-sm">
+                                <div class="grid grid-cols-2 gap-3">
+                                    <div>
+                                        <label class="block font-semibold text-slate-700 mb-1">Customer ID</label>
+                                        <input type="text" id="qc-id" value="F0${DEFAULT_STATE.farmers.length + 1}" required class="w-full px-3 py-2 border rounded-xl bg-slate-50">
+                                    </div>
+                                    <div>
+                                        <label class="block font-semibold text-slate-700 mb-1">Customer Name *</label>
+                                        <input type="text" id="qc-name" required class="w-full px-3 py-2 border rounded-xl bg-slate-50" placeholder="Full Name">
+                                    </div>
+                                </div>
+                                <div class="grid grid-cols-2 gap-3">
+                                    <div>
+                                        <label class="block font-semibold text-slate-700 mb-1">Mobile Number *</label>
+                                        <input type="text" id="qc-phone" required class="w-full px-3 py-2 border rounded-xl bg-slate-50" placeholder="9842123456">
+                                    </div>
+                                    <div>
+                                        <label class="block font-semibold text-slate-700 mb-1">Village *</label>
+                                        <input type="text" id="qc-village" required class="w-full px-3 py-2 border rounded-xl bg-slate-50" placeholder="Thadikombu">
+                                    </div>
                                 </div>
                                 <div>
-                                    <label class="block font-semibold text-slate-700 mb-1">Customer Name *</label>
-                                    <input type="text" id="qc-name" required class="w-full px-3 py-2 border rounded-xl bg-slate-50" placeholder="Full Name">
+                                    <label class="block font-semibold text-slate-700 mb-1">Address</label>
+                                    <input type="text" id="qc-address" class="w-full px-3 py-2 border rounded-xl bg-slate-50" placeholder="Street / Door No">
                                 </div>
-                            </div>
-                            <div class="grid grid-cols-2 gap-3">
-                                <div>
-                                    <label class="block font-semibold text-slate-700 mb-1">Mobile Number *</label>
-                                    <input type="text" id="qc-phone" required class="w-full px-3 py-2 border rounded-xl bg-slate-50" placeholder="9842123456">
+                                <div class="flex justify-end gap-2 pt-3 border-t">
+                                    <button type="button" onclick="switchModalView('sale')" class="px-4 py-2.5 bg-slate-100 text-slate-700 rounded-xl font-semibold">Back to Sale</button>
+                                    <button type="submit" class="px-5 py-2.5 bg-emerald-600 text-white rounded-xl font-semibold shadow">Save & Select Customer</button>
                                 </div>
-                                <div>
-                                    <label class="block font-semibold text-slate-700 mb-1">Village *</label>
-                                    <input type="text" id="qc-village" required class="w-full px-3 py-2 border rounded-xl bg-slate-50" placeholder="Thadikombu">
-                                </div>
-                            </div>
-                            <div>
-                                <label class="block font-semibold text-slate-700 mb-1">Address</label>
-                                <input type="text" id="qc-address" class="w-full px-3 py-2 border rounded-xl bg-slate-50" placeholder="Street / Door No">
-                            </div>
-                            <div class="flex justify-end gap-2 pt-3 border-t">
-                                <button type="button" onclick="closeQuickCustomerModal()" class="px-4 py-2 bg-slate-100 text-slate-700 rounded-xl font-semibold">Cancel</button>
-                                <button type="submit" class="px-4 py-2 bg-emerald-600 text-white rounded-xl font-semibold shadow">Save & Select Customer</button>
-                            </div>
-                        </form>
+                            </form>
+                        </div>
+
                     </div>
                 </div>
 
                 <!-- Clear Due / Pay Modal -->
-                <div id="pay-feed-modal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm hidden items-center justify-center p-3 z-50">
-                    <div class="bg-white rounded-2xl max-w-sm w-full p-6 shadow-2xl">
+                <div id="pay-feed-modal" class="fixed inset-0 bg-slate-950/70 backdrop-blur-sm hidden items-center justify-center p-3 z-50">
+                    <div class="bg-white rounded-2xl max-w-sm w-full p-6 shadow-2xl my-auto">
                         <div class="flex justify-between items-center mb-4 border-b pb-3">
                             <h3 class="text-base font-bold text-slate-900">Record Payment / Clear Due</h3>
                             <button onclick="closePayFeedModal()" class="text-slate-400 hover:text-slate-700 font-bold text-xl">✕</button>
@@ -899,7 +906,6 @@
                         ${cb.outstandingBalance > 0 ? `<button onclick="openPayFeedModalForCustomer('${f.id}')" class="bg-emerald-600 hover:bg-emerald-700 text-white px-4 py-2.5 rounded-xl text-xs font-semibold shadow w-full sm:w-auto">Make Payment</button>` : ''}
                     </div>
 
-                    <!-- Customer KPI Cards -->
                     <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 md:gap-4">
                         <div class="dairy-card p-4">
                             <div class="text-[11px] font-semibold text-slate-500 uppercase">Total Purchases</div>
@@ -915,7 +921,6 @@
                         </div>
                     </div>
 
-                    <!-- Purchase History -->
                     <div class="dairy-card p-4 md:p-6 space-y-4">
                         <h3 class="font-bold text-slate-900 text-sm md:text-base">Individual Purchase History (${cb.sales.length} orders)</h3>
                         <div class="overflow-x-auto">
@@ -945,33 +950,6 @@
                             </table>
                         </div>
                     </div>
-
-                    <!-- Payment History -->
-                    <div class="dairy-card p-4 md:p-6 space-y-4">
-                        <h3 class="font-bold text-slate-900 text-sm md:text-base">Individual Payment History (${cb.payments.length} payments)</h3>
-                        <div class="overflow-x-auto">
-                            <table class="w-full text-left border-collapse text-xs min-w-[400px]">
-                                <thead class="bg-slate-100">
-                                    <tr>
-                                        <th class="p-3">Payment ID</th>
-                                        <th class="p-3">Date</th>
-                                        <th class="p-3">Payment Method</th>
-                                        <th class="p-3">Amount Paid</th>
-                                    </tr>
-                                </thead>
-                                <tbody class="divide-y font-medium text-slate-700">
-                                    ${cb.payments.length === 0 ? '<tr><td colspan="4" class="p-4 text-center text-slate-500">No separate payment records found.</td></tr>' : cb.payments.map(p => `
-                                        <tr>
-                                            <td class="p-3 font-bold text-sky-700">${p.id}</td>
-                                            <td class="p-3">${p.date}</td>
-                                            <td class="p-3"><span class="px-2 py-0.5 bg-slate-100 rounded font-bold">${p.method}</span></td>
-                                            <td class="p-3 font-bold text-emerald-600">₹${p.amount}</td>
-                                        </tr>
-                                    `).join('')}
-                                </tbody>
-                            </table>
-                        </div>
-                    </div>
                 </div>
             `;
         }
@@ -982,6 +960,7 @@
         }
 
         function openFeedSaleModal() {
+            switchModalView('sale');
             document.getElementById('feed-sale-modal').classList.remove('hidden');
             document.getElementById('feed-sale-modal').classList.add('flex');
             updateFeedSaleCalc();
@@ -992,9 +971,22 @@
             document.getElementById('feed-sale-modal').classList.remove('flex');
         }
 
+        function switchModalView(view) {
+            const saleView = document.getElementById('modal-view-sale');
+            const custView = document.getElementById('modal-view-customer');
+            if (!saleView || !custView) return;
+            if (view === 'add-customer') {
+                saleView.classList.add('hidden');
+                custView.classList.remove('hidden');
+            } else {
+                custView.classList.add('hidden');
+                saleView.classList.remove('hidden');
+            }
+        }
+
         function handleCustomerSelectChange(val) {
             if (val === 'ADD_NEW') {
-                openAddCustomerFromSaleModal();
+                switchModalView('add-customer');
             } else {
                 const cb = getCustomerBalance(val);
                 const banner = document.getElementById('existing-balance-banner');
@@ -1006,16 +998,6 @@
                     banner.classList.add('hidden');
                 }
             }
-        }
-
-        function openAddCustomerFromSaleModal() {
-            document.getElementById('quick-customer-modal').classList.remove('hidden');
-            document.getElementById('quick-customer-modal').classList.add('flex');
-        }
-
-        function closeQuickCustomerModal() {
-            document.getElementById('quick-customer-modal').classList.add('hidden');
-            document.getElementById('quick-customer-modal').classList.remove('flex');
         }
 
         function submitQuickCustomer(e) {
@@ -1047,9 +1029,9 @@
 
             DEFAULT_STATE.farmers.push(newCust);
             saveState();
-            closeQuickCustomerModal();
 
-            // Auto-select in Feed Sale dropdown
+            // Switch back to sale view and auto-select new customer
+            switchModalView('sale');
             const select = document.getElementById('fs-farmer-id');
             if (select) {
                 select.innerHTML = `
