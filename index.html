@@ -85,7 +85,7 @@
     <!-- Application Core Script -->
     <script>
         // Arun Traders - Milk Collection & Society Management System
-        // Complete Application Logic & State Management with Feed Sales & Credit Ledger
+        // Complete Application Logic & State Management with Advanced Customer Credit & Balance Ledger
 
         document.addEventListener('DOMContentLoaded', () => {
             initializeApp();
@@ -146,12 +146,15 @@
                 { id: "FEE-12", name: "Delite 70kg", category: "Third Quality", price: 1700 }
             ],
             feedSales: [
-                { id: "FS-101", farmerId: "F001", farmerName: "Ramesh Kumar", date: "2024-08-05", feedName: "Nutribest 50kg", bags: 2, unitPrice: 1450, totalAmount: 2900, paidAmount: 1000, paymentMode: "Cash (Hand)", balanceDue: 1900 },
-                { id: "FS-102", farmerId: "F002", farmerName: "Suresh", date: "2024-08-05", feedName: "Nutribest 70kg", bags: 1, unitPrice: 1980, totalAmount: 1980, paidAmount: 1980, paymentMode: "Online UPI", balanceDue: 0 },
-                { id: "FS-103", farmerId: "F003", farmerName: "Arun Kumar", date: "2024-08-07", feedName: "Lactobest 50kg", bags: 4, unitPrice: 1400, totalAmount: 5600, paidAmount: 2000, paymentMode: "Partial Payment", balanceDue: 3600 },
-                { id: "FS-104", farmerId: "F004", farmerName: "Meena", date: "2024-08-10", feedName: "Milky best 50kg", bags: 2, unitPrice: 1350, totalAmount: 2700, paidAmount: 2700, paymentMode: "Cash (Hand)", balanceDue: 0 },
-                { id: "FS-105", farmerId: "F005", farmerName: "Lakshmi", date: "2024-08-12", feedName: "Dairybest 70kg", bags: 3, unitPrice: 1780, totalAmount: 5340, paidAmount: 1000, paymentMode: "Partial Payment", balanceDue: 4340 }
+                { id: "FS-101", farmerId: "F014", farmerName: "Kavitha", date: "2026-09-11", feedName: "Lactobest 50kg", bags: 2, unitPrice: 1400, totalAmount: 2800, paidAmount: 2800, paymentMode: "Online UPI (Settled)", balanceDue: 0 },
+                { id: "FS-102", farmerId: "F002", farmerName: "Suresh", date: "2026-09-11", feedName: "Nutribest 70kg", bags: 1, unitPrice: 1980, totalAmount: 1980, paidAmount: 1980, paymentMode: "Cash (Hand) (Settled)", balanceDue: 0 },
+                { id: "FS-103", farmerId: "F001", farmerName: "Ramesh Kumar", date: "2024-08-05", feedName: "Nutribest 50kg", bags: 2, unitPrice: 1450, totalAmount: 2900, paidAmount: 1000, paymentMode: "Cash (Hand)", balanceDue: 1900 },
+                { id: "FS-104", farmerId: "F002", farmerName: "Suresh", date: "2024-08-05", feedName: "Nutribest 70kg", bags: 1, unitPrice: 1980, totalAmount: 1980, paidAmount: 1980, paymentMode: "Online UPI", balanceDue: 0 },
+                { id: "FS-105", farmerId: "F003", farmerName: "Arun Kumar", date: "2024-08-07", feedName: "Lactobest 50kg", bags: 4, unitPrice: 1400, totalAmount: 5600, paidAmount: 2000, paymentMode: "Partial Payment", balanceDue: 3600 },
+                { id: "FS-106", farmerId: "F004", farmerName: "Meena", date: "2024-08-10", feedName: "Milky best 50kg", bags: 2, unitPrice: 1350, totalAmount: 2700, paidAmount: 2700, paymentMode: "Cash (Hand)", balanceDue: 0 },
+                { id: "FS-107", farmerId: "F005", farmerName: "Lakshmi", date: "2024-08-12", feedName: "Dairybest 70kg", bags: 3, unitPrice: 1780, totalAmount: 5340, paidAmount: 1000, paymentMode: "Partial Payment", balanceDue: 4340 }
             ],
+            feedPayments: [], // { id, farmerId, farmerName, date, amount, method }
             rateCharts: [
                 { id: 1, milkType: "Cow", fatMin: 3.0, fatMax: 3.4, snf: 8.3, rate: 36.0, bonus: 1.0, deduction: 0.0, effectiveFrom: "2024-01-01" },
                 { id: 2, milkType: "Cow", fatMin: 3.5, fatMax: 3.9, snf: 8.5, rate: 40.0, bonus: 1.0, deduction: 0.0, effectiveFrom: "2024-01-01" },
@@ -163,17 +166,12 @@
                 { id: 8, milkType: "Mixed", fatMin: 3.8, fatMax: 4.5, snf: 8.5, rate: 42.0, bonus: 1.0, deduction: 0.0, effectiveFrom: "2024-01-01" }
             ],
             collections: [
-                { id: "MC1001", farmerId: "F001", farmerName: "Ramesh Kumar", date: "2024-05-20", time: "06:42 AM", shift: "Morning", milkType: "Cow", litres: 12.5, fat: 4.2, snf: 8.5, clr: 28.5, rate: 44.0, amount: 550.0, operatorId: "OP01", status: "Accepted" },
-                { id: "MC1002", farmerId: "F002", farmerName: "Suresh", date: "2024-05-20", time: "06:50 AM", shift: "Morning", milkType: "Cow", litres: 15.0, fat: 4.5, snf: 8.7, clr: 29.0, rate: 48.0, amount: 720.0, operatorId: "OP01", status: "Accepted" },
-                { id: "MC1003", farmerId: "F003", farmerName: "Arun Kumar", date: "2024-05-20", time: "07:05 AM", shift: "Morning", milkType: "Mixed", litres: 18.0, fat: 4.1, snf: 8.5, clr: 28.0, rate: 42.0, amount: 756.0, operatorId: "OP01", status: "Accepted" }
+                { id: "MC1001", farmerId: "F001", farmerName: "Ramesh Kumar", date: "2024-05-20", time: "06:42 AM", shift: "Morning", milkType: "Cow", litres: 12.5, fat: 4.2, snf: 8.5, clr: 28.5, rate: 44.0, amount: 550.0, operatorId: "OP01", status: "Accepted" }
             ],
-            payments: [
-                { id: "PAY-501", farmerId: "F001", farmerName: "Ramesh Kumar", date: "2024-05-13", amount: 6450.0, method: "Bank Transfer", referenceNumber: "UTIB0001234", status: "Paid" }
-            ],
-            ledgers: [
-                { farmerId: "F001", farmerName: "Ramesh Kumar", opening: 0, earnings: 8250, bonuses: 250, deductions: 50, advances: 500, payments: 6450, closing: 1500 }
-            ],
-            activeReceipt: null
+            payments: [],
+            ledgers: [],
+            activeReceipt: null,
+            activeCustomerProfileId: null
         };
 
         function initializeApp() {
@@ -182,6 +180,7 @@
                 try {
                     const parsed = JSON.parse(savedState);
                     Object.assign(DEFAULT_STATE, parsed);
+                    if (!DEFAULT_STATE.feedPayments) DEFAULT_STATE.feedPayments = [];
                 } catch (e) {
                     console.error("Error loading saved state", e);
                 }
@@ -195,6 +194,7 @@
 
         function setView(viewName) {
             DEFAULT_STATE.currentView = viewName;
+            DEFAULT_STATE.activeCustomerProfileId = null;
             renderApp();
         }
 
@@ -231,6 +231,18 @@
             DEFAULT_STATE.currentView = 'login';
             saveState();
             renderApp();
+        }
+
+        // Helper calculations for customer credit balance (Rule 13: Total Value of All Purchases − Total Payments Received)
+        function getCustomerBalance(farmerId) {
+            const sales = DEFAULT_STATE.feedSales.filter(s => s.farmerId === farmerId);
+            const payments = DEFAULT_STATE.feedPayments.filter(p => p.farmerId === farmerId);
+            const totalPurchases = sales.reduce((acc, s) => acc + s.totalAmount, 0);
+            const totalPaidInSales = sales.reduce((acc, s) => acc + s.paidAmount, 0);
+            const totalPayments = payments.reduce((acc, p) => acc + p.amount, 0);
+            const totalPaid = totalPaidInSales + totalPayments;
+            const outstandingBalance = Math.max(0, totalPurchases - totalPaid);
+            return { totalPurchases, totalPaid, outstandingBalance, sales, payments };
         }
 
         function renderApp() {
@@ -297,13 +309,13 @@
                         </footer>
                     </div>
                 </div>
-                ${DEFAULT_STATE.activeReceipt ? renderReceiptModal() : ''}
             `;
             attachViewListeners();
         }
 
         function getViewTitle() {
             const view = DEFAULT_STATE.currentView;
+            if (DEFAULT_STATE.activeCustomerProfileId) return 'Customer Credit Profile / வாடிக்கையாளர் கடன் விவரம்';
             switch(view) {
                 case 'admin_dashboard': return 'Admin Dashboard / நிர்வாக டாஷ்போர்டு';
                 case 'operator_dashboard': return 'Operator Dashboard / ஆபரேட்டர் டாஷ்போர்டு';
@@ -495,6 +507,9 @@
         }
 
         function renderCurrentView() {
+            if (DEFAULT_STATE.activeCustomerProfileId) {
+                return renderCustomerCreditProfile(DEFAULT_STATE.activeCustomerProfileId);
+            }
             const view = DEFAULT_STATE.currentView;
             switch(view) {
                 case 'admin_dashboard':
@@ -536,20 +551,23 @@
             const totalMilk = todayCols.reduce((acc, c) => acc + c.litres, 0);
             const totalAmount = todayCols.reduce((acc, c) => acc + c.amount, 0);
 
+            // Total feed pending credit across all customers
+            const totalFeedDue = DEFAULT_STATE.feedSales.reduce((acc, s) => acc + s.balanceDue, 0);
+
             return `
                 <div class="space-y-6">
                     <div class="bg-gradient-to-r from-emerald-600 to-teal-700 rounded-2xl p-6 text-white shadow-lg flex justify-between items-center">
                         <div>
                             <div class="text-xs uppercase tracking-wider font-semibold text-emerald-200">Arun Traders • Society Management</div>
-                            <h2 class="text-2xl font-bold mt-1">Today's Milk Collection Overview</h2>
+                            <h2 class="text-2xl font-bold mt-1">Today's Milk Collection & Feed Credit Overview</h2>
                         </div>
-                        <button onclick="setView('feed_sales')" class="bg-white text-emerald-700 hover:bg-emerald-50 px-4 py-2 rounded-xl text-sm font-semibold shadow">🌾 Feed Sales & Credit</button>
+                        <button onclick="setView('feed_sales')" class="bg-white text-emerald-700 hover:bg-emerald-50 px-4 py-2.5 rounded-xl text-sm font-semibold shadow">🌾 Feed Sales & Credit Ledger</button>
                     </div>
                     <div class="grid grid-cols-1 sm:grid-cols-4 gap-4">
                         <div class="dairy-card p-5"><div class="text-xs text-slate-500 uppercase">Total Farmers</div><h3 class="text-2xl font-bold text-slate-900 mt-1">${totalFarmers}</h3></div>
-                        <div class="dairy-card p-5"><div class="text-xs text-slate-500 uppercase">Total Milk</div><h3 class="text-2xl font-bold text-slate-900 mt-1">${totalMilk} L</h3></div>
-                        <div class="dairy-card p-5"><div class="text-xs text-slate-500 uppercase">Active Today</div><h3 class="text-2xl font-bold text-slate-900 mt-1">${activeToday}</h3></div>
+                        <div class="dairy-card p-5"><div class="text-xs text-slate-500 uppercase">Today's Total Milk</div><h3 class="text-2xl font-bold text-slate-900 mt-1">${totalMilk} L</h3></div>
                         <div class="dairy-card p-5"><div class="text-xs text-slate-500 uppercase">Today's Amount</div><h3 class="text-2xl font-bold text-emerald-600 mt-1">₹${totalAmount}</h3></div>
+                        <div class="dairy-card p-5"><div class="text-xs text-slate-500 uppercase">Total Feed Credit Due</div><h3 class="text-2xl font-bold text-amber-600 mt-1">₹${totalFeedDue.toLocaleString()}</h3></div>
                     </div>
                     <div class="dairy-card p-6">
                         <h3 class="font-bold text-slate-900 mb-4">Today's Collection Records</h3>
@@ -562,75 +580,347 @@
             `;
         }
 
+        // ==========================================
+        // CATTLE FEED SALES & CREDIT LEDGER MODULE
+        // ==========================================
         function renderFeedSalesPage() {
             const role = DEFAULT_STATE.currentUser.role;
             const isFarmer = role === 'farmer';
-            let sales = DEFAULT_STATE.feedSales;
-            if (isFarmer) sales = sales.filter(s => s.farmerId === DEFAULT_STATE.currentUser.farmerId);
+            const currentFarmerId = DEFAULT_STATE.currentUser.farmerId;
 
-            const totalSales = sales.reduce((a, b) => a + b.totalAmount, 0);
-            const totalDue = sales.reduce((a, b) => a + b.balanceDue, 0);
+            let sales = DEFAULT_STATE.feedSales;
+            if (isFarmer) {
+                sales = sales.filter(s => s.farmerId === currentFarmerId);
+            }
+
+            const totalFeedSales = sales.reduce((acc, s) => acc + s.totalAmount, 0);
+            const totalPaid = sales.reduce((acc, s) => acc + s.paidAmount, 0) + DEFAULT_STATE.feedPayments.reduce((acc, p) => acc + p.amount, 0);
+            const totalPendingDue = sales.reduce((acc, s) => acc + s.balanceDue, 0);
+
+            // Group by customer for quick summary
+            const customerMap = {};
+            DEFAULT_STATE.feedSales.forEach(s => {
+                if (!customerMap[s.farmerId]) {
+                    customerMap[s.farmerId] = { farmerId: s.farmerId, farmerName: s.farmerName, totalPurchases: 0, totalPaid: 0, balanceDue: 0 };
+                }
+                customerMap[s.farmerId].totalPurchases += s.totalAmount;
+                customerMap[s.farmerId].totalPaid += s.paidAmount;
+                customerMap[s.farmerId].balanceDue += s.balanceDue;
+            });
+            DEFAULT_STATE.feedPayments.forEach(p => {
+                if (customerMap[p.farmerId]) {
+                    customerMap[p.farmerId].totalPaid += p.amount;
+                    customerMap[p.farmerId].balanceDue = Math.max(0, customerMap[p.farmerId].totalPurchases - customerMap[p.farmerId].totalPaid);
+                }
+            });
+            const customersSummary = Object.values(customerMap);
 
             return `
                 <div class="space-y-6">
-                    <div class="bg-gradient-to-r from-emerald-600 to-teal-700 rounded-2xl p-6 text-white shadow-lg flex justify-between items-center">
+                    <div class="bg-gradient-to-r from-emerald-600 to-teal-700 rounded-2xl p-6 text-white shadow-lg flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
                         <div>
-                            <h2 class="text-2xl font-bold">🌾 Feed Sales & Credit Ledger (தீவன விற்பனை கடன் கணக்கு)</h2>
-                            <p class="text-xs text-emerald-100 mt-1">Nutribest, Lactobest, Milky best, Dairybest & Delite distribution & credits.</p>
+                            <div class="text-xs uppercase tracking-wider font-semibold text-emerald-200">Arun Traders • Cattle Feed Management</div>
+                            <h2 class="text-2xl font-bold mt-1">🌾 Feed Sales & Credit Ledger (தீவன விற்பனை கடன் கணக்கு)</h2>
+                            <p class="text-sm text-emerald-100 mt-1">Nutribest, Lactobest, Milky best, Dairybest & Delite distribution & running credit ledger.</p>
                         </div>
-                        ${!isFarmer ? `<button onclick="openFeedSaleModal()" class="bg-white text-emerald-700 px-4 py-2.5 rounded-xl text-sm font-semibold shadow">+ New Feed Sale</button>` : ''}
+                        ${!isFarmer ? `
+                        <button onclick="openFeedSaleModal()" class="bg-white text-emerald-700 hover:bg-emerald-50 px-4 py-2.5 rounded-xl text-sm font-semibold shadow transition flex items-center gap-2">
+                            <span>+</span> New Feed Sale / Credit Entry
+                        </button>` : ''}
                     </div>
-                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                        <div class="dairy-card p-5"><div class="text-xs text-slate-500 uppercase">Total Feed Sales</div><h3 class="text-2xl font-bold text-slate-900 mt-1">₹${totalSales}</h3></div>
-                        <div class="dairy-card p-5"><div class="text-xs text-slate-500 uppercase">Total Pending Due (Credit)</div><h3 class="text-2xl font-bold text-amber-600 mt-1">₹${totalDue}</h3></div>
-                    </div>
-                    <div class="dairy-card overflow-hidden p-4">
-                        <h3 class="font-bold text-slate-900 text-base mb-3">🏷️ Available Feed Varieties</h3>
-                        <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-6">
-                            ${DEFAULT_STATE.feedProducts.map(p => `<div class="bg-slate-50 p-3 rounded-xl border text-xs"><div class="font-bold">${p.name}</div><div class="text-emerald-600 font-extrabold mt-1">₹${p.price}</div></div>`).join('')}
+
+                    <!-- KPI Cards -->
+                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                        <div class="dairy-card p-5">
+                            <div class="text-xs font-semibold text-slate-500 uppercase">Total Feed Purchases</div>
+                            <div class="text-2xl font-bold text-slate-900 mt-1">₹${totalFeedSales.toLocaleString()}</div>
                         </div>
-                        <h3 class="font-bold text-slate-900 text-base mb-3">Feed Sales & Credit Transactions</h3>
-                        <table class="w-full text-left text-xs">
-                            <thead class="bg-slate-100"><tr><th class="p-3">Date</th><th class="p-3">Farmer</th><th class="p-3">Feed Variety</th><th class="p-3">Bags</th><th class="p-3">Total</th><th class="p-3">Paid</th><th class="p-3">Mode</th><th class="p-3 text-amber-700 font-bold">Balance Due</th>${!isFarmer ? '<th class="p-3 text-right">Action</th>' : ''}</tr></thead>
-                            <tbody class="divide-y">${sales.map(s => `<tr><td class="p-3">${s.date}</td><td class="p-3 font-bold">${s.farmerName}</td><td class="p-3">${s.feedName}</td><td class="p-3">${s.bags}</td><td class="p-3">₹${s.totalAmount}</td><td class="p-3 text-emerald-600">₹${s.paidAmount}</td><td class="p-3"><span class="px-2 py-0.5 rounded text-[10px] font-bold ${s.paymentMode.includes('Cash') ? 'bg-amber-100 text-amber-800' : 'bg-rose-100 text-rose-800'}">${s.paymentMode}</span></td><td class="p-3 font-extrabold ${s.balanceDue > 0 ? 'text-rose-600' : 'text-emerald-600'}">₹${s.balanceDue}</td>${!isFarmer ? `<td class="p-3 text-right">${s.balanceDue > 0 ? `<button onclick="openPayFeedModal('${s.id}')" class="bg-emerald-600 text-white px-2.5 py-1 rounded text-xs">Clear Due</button>` : 'Settled'}</td>` : ''}</tr>`).join('')}</tbody>
-                        </table>
+                        <div class="dairy-card p-5">
+                            <div class="text-xs font-semibold text-slate-500 uppercase">Total Amount Paid</div>
+                            <div class="text-2xl font-bold text-emerald-600 mt-1">₹${totalPaid.toLocaleString()}</div>
+                        </div>
+                        <div class="dairy-card p-5">
+                            <div class="text-xs font-semibold text-slate-500 uppercase">Total Outstanding Balance Due</div>
+                            <div class="text-2xl font-bold text-amber-600 mt-1">₹${totalPendingDue.toLocaleString()}</div>
+                        </div>
+                    </div>
+
+                    <!-- Available Feed Varieties -->
+                    <div class="dairy-card p-6">
+                        <h3 class="font-bold text-slate-900 text-base mb-3">🏷️ Available Cattle Feed Varieties & Pricing</h3>
+                        <div class="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-6 gap-3">
+                            ${DEFAULT_STATE.feedProducts.map(p => `
+                                <div class="bg-slate-50 p-3 rounded-xl border text-xs">
+                                    <div class="font-bold text-slate-900">${p.name}</div>
+                                    <div class="text-[10px] text-emerald-700">${p.category}</div>
+                                    <div class="font-extrabold text-emerald-600 text-sm mt-1">₹${p.price}</div>
+                                </div>
+                            `).join('')}
+                        </div>
+                    </div>
+
+                    ${!isFarmer ? `
+                    <!-- Customer Balances Summary -->
+                    <div class="dairy-card overflow-hidden p-6">
+                        <h3 class="font-bold text-slate-900 text-base mb-4">👥 Customer Credit Balances (வாடிக்கையாளர் கடன் நிலுவை)</h3>
+                        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                            ${customersSummary.map(cs => `
+                                <div class="bg-slate-50 p-4 rounded-xl border flex flex-col justify-between gap-3">
+                                    <div class="flex justify-between items-start">
+                                        <div>
+                                            <span class="text-[10px] bg-emerald-100 text-emerald-800 px-2 py-0.5 rounded font-bold">${cs.farmerId}</span>
+                                            <h4 class="font-bold text-slate-900 text-base mt-1">${cs.farmerName}</h4>
+                                        </div>
+                                        <button onclick="viewCustomerCreditProfile('${cs.farmerId}')" class="bg-sky-50 hover:bg-sky-100 text-sky-700 px-3 py-1 rounded-lg text-xs font-semibold">View Profile</button>
+                                    </div>
+                                    <div class="grid grid-cols-3 gap-2 text-center bg-white p-2.5 rounded-lg border text-xs">
+                                        <div><div class="text-[10px] text-slate-500">Purchases</div><div class="font-bold">₹${cs.totalPurchases}</div></div>
+                                        <div><div class="text-[10px] text-slate-500">Paid</div><div class="font-bold text-emerald-600">₹${cs.totalPaid}</div></div>
+                                        <div><div class="text-[10px] text-slate-500">Due</div><div class="font-bold text-rose-600">₹${cs.balanceDue}</div></div>
+                                    </div>
+                                    ${cs.balanceDue > 0 ? `<button onclick="openPayFeedModalForCustomer('${cs.farmerId}')" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white py-2 rounded-lg text-xs font-semibold shadow">Make Payment / Clear Due</button>` : '<div class="text-center text-xs text-emerald-600 font-bold py-1">All Dues Settled ✓</div>'}
+                                </div>
+                            `).join('')}
+                        </div>
+                    </div>` : ''}
+
+                    <!-- Feed Sales & Credit Transactions Ledger -->
+                    <div class="dairy-card overflow-hidden">
+                        <div class="p-4 border-b flex flex-col sm:flex-row justify-between items-center gap-4">
+                            <h3 class="font-bold text-slate-900 text-base">Complete Feed Sales & Payment Ledger (${sales.length} transactions)</h3>
+                            <input type="text" id="feed-search" placeholder="Search farmer or feed..." onkeyup="filterFeedTable()" class="px-3 py-2 border rounded-xl text-xs bg-slate-50 w-full sm:w-64">
+                        </div>
+                        <div class="overflow-x-auto">
+                            <table class="w-full text-left border-collapse text-xs">
+                                <thead class="bg-slate-100/70 text-slate-700 uppercase font-semibold text-[11px]">
+                                    <tr>
+                                        <th class="p-4">Tx ID & Date</th>
+                                        <th class="p-4">Customer Name</th>
+                                        <th class="p-4">Feed Variety</th>
+                                        <th class="p-4">Bags</th>
+                                        <th class="p-4">Total Amount</th>
+                                        <th class="p-4">Paid at Purchase</th>
+                                        <th class="p-4">Payment Mode</th>
+                                        <th class="p-4 font-bold text-amber-700">Remaining Balance</th>
+                                        ${!isFarmer ? '<th class="p-4 text-right">Action</th>' : ''}
+                                    </tr>
+                                </thead>
+                                <tbody id="feed-table-body" class="divide-y text-slate-700 font-medium">
+                                    ${sales.map(s => `
+                                        <tr class="hover:bg-slate-50">
+                                            <td class="p-4 font-bold text-emerald-700">${s.id}<br><span class="text-[10px] text-slate-400 font-normal">${s.date}</span></td>
+                                            <td class="p-4 font-bold text-slate-900 cursor-pointer hover:underline text-sky-700" onclick="viewCustomerCreditProfile('${s.farmerId}')">${s.farmerName} (${s.farmerId})</td>
+                                            <td class="p-4">${s.feedName}</td>
+                                            <td class="p-4 font-bold">${s.bags} bags</td>
+                                            <td class="p-4 font-semibold text-slate-900">₹${s.totalAmount}</td>
+                                            <td class="p-4 font-semibold text-emerald-600">₹${s.paidAmount}</td>
+                                            <td class="p-4"><span class="px-2 py-0.5 rounded text-[10px] font-bold ${s.paymentMode.includes('Cash') ? 'bg-amber-100 text-amber-800' : s.paymentMode.includes('Online') ? 'bg-sky-100 text-sky-800' : 'bg-rose-100 text-rose-800'}">${s.paymentMode}</span></td>
+                                            <td class="p-4 font-extrabold ${s.balanceDue > 0 ? 'text-rose-600' : 'text-emerald-600'}">₹${s.balanceDue}</td>
+                                            ${!isFarmer ? `
+                                            <td class="p-4 text-right">
+                                                ${s.balanceDue > 0 ? `<button onclick="openPayFeedModal('${s.id}')" class="bg-emerald-600 hover:bg-emerald-700 text-white px-3 py-1 rounded-lg text-xs font-semibold">Clear Due</button>` : '<span class="text-emerald-600 font-bold">Settled ✓</span>'}
+                                            </td>` : ''}
+                                        </tr>
+                                    `).join('')}
+                                </tbody>
+                            </table>
+                        </div>
                     </div>
                 </div>
 
+                <!-- New Feed Sale Modal -->
                 <div id="feed-sale-modal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm hidden items-center justify-center p-4 z-50">
-                    <div class="bg-white rounded-2xl max-w-lg w-full p-6 shadow-2xl">
-                        <div class="flex justify-between items-center mb-4 border-b pb-3"><h3 class="text-lg font-bold">New Feed Sale & Credit Entry</h3><button onclick="closeFeedSaleModal()" class="text-xl font-bold">✕</button></div>
-                        <form onsubmit="submitFeedSale(event)" class="space-y-4 text-xs">
-                            <div><label class="block font-semibold mb-1">Farmer</label><select id="fs-farmer-id" class="w-full px-3 py-2 border rounded-xl bg-slate-50">${DEFAULT_STATE.farmers.map(f => `<option value="${f.id}">${f.name} (${f.id})</option>`).join('')}</select></div>
+                    <div class="bg-white rounded-2xl max-w-lg w-full p-6 shadow-2xl max-h-[90vh] overflow-y-auto">
+                        <div class="flex justify-between items-center mb-4 border-b pb-3">
+                            <h3 class="text-lg font-bold text-slate-900">New Feed Sale & Credit Entry (தீவன விற்பனை பதிவு)</h3>
+                            <button onclick="closeFeedSaleModal()" class="text-slate-400 hover:text-slate-700 font-bold text-xl">✕</button>
+                        </div>
+                        <form id="feed-sale-form" onsubmit="submitFeedSale(event)" class="space-y-4 text-xs">
+                            <div>
+                                <label class="block font-semibold text-slate-700 mb-1">Select Customer / Farmer</label>
+                                <select id="fs-farmer-id" required class="w-full px-3 py-2.5 border rounded-xl bg-slate-50 font-medium">
+                                    ${DEFAULT_STATE.farmers.map(f => `<option value="${f.id}">${f.id} - ${f.name} (${f.village})</option>`).join('')}
+                                </select>
+                            </div>
+
                             <div class="grid grid-cols-2 gap-4">
-                                <div><label class="block font-semibold mb-1">Feed Variety</label><select id="fs-feed-id" onchange="updateFeedSaleCalc()" class="w-full px-3 py-2 border rounded-xl bg-slate-50">${DEFAULT_STATE.feedProducts.map(p => `<option value="${p.id}" data-price="${p.price}">${p.name} (₹${p.price})</option>`).join('')}</select></div>
-                                <div><label class="block font-semibold mb-1">Bags</label><input type="number" id="fs-bags" value="1" min="1" oninput="updateFeedSaleCalc()" class="w-full px-3 py-2 border rounded-xl bg-slate-50 font-bold"></div>
+                                <div>
+                                    <label class="block font-semibold text-slate-700 mb-1">Select Feed Variety</label>
+                                    <select id="fs-feed-id" onchange="updateFeedSaleCalc()" required class="w-full px-3 py-2.5 border rounded-xl bg-slate-50 font-medium">
+                                        ${DEFAULT_STATE.feedProducts.map(p => `<option value="${p.id}" data-price="${p.price}">${p.name} (₹${p.price})</option>`).join('')}
+                                    </select>
+                                </div>
+                                <div>
+                                    <label class="block font-semibold text-slate-700 mb-1">Number of Bags</label>
+                                    <input type="number" id="fs-bags" value="1" min="1" required oninput="updateFeedSaleCalc()" class="w-full px-3 py-2.5 border rounded-xl bg-slate-50 font-bold">
+                                </div>
                             </div>
-                            <div class="grid grid-cols-2 gap-4 bg-slate-50 p-3 rounded-xl border">
-                                <div><span class="text-slate-500">Total Bill:</span><div class="text-lg font-bold">₹<span id="fs-display-total">1450</span></div></div>
-                                <div><label class="block font-semibold mb-1">Paid Now (₹)</label><input type="number" id="fs-paid" value="0" min="0" oninput="updateFeedSaleCalc()" class="w-full px-2 py-2 border rounded-xl bg-white font-bold text-emerald-600"></div>
+
+                            <div class="grid grid-cols-2 gap-4 bg-slate-50 p-4 rounded-xl border">
+                                <div>
+                                    <span class="text-slate-500 font-medium">Total Feed Bill:</span>
+                                    <div class="text-xl font-bold text-slate-900 mt-0.5">₹<span id="fs-display-total">1450</span></div>
+                                </div>
+                                <div>
+                                    <label class="block font-semibold text-slate-700 mb-1">Amount Paid Now (₹)</label>
+                                    <input type="number" id="fs-paid" value="0" min="0" required oninput="updateFeedSaleCalc()" class="w-full px-2.5 py-2 border rounded-xl bg-white font-bold text-emerald-600">
+                                </div>
                             </div>
+
                             <div class="grid grid-cols-2 gap-4">
-                                <div><label class="block font-semibold mb-1">Mode</label><select id="fs-mode" class="w-full px-3 py-2 border rounded-xl bg-slate-50"><option value="Cash (Hand)">Cash (In Hand)</option><option value="Online UPI">Online UPI</option><option value="Partial Payment">Partial Payment</option><option value="Credit / Pending">Full Credit / Pending</option></select></div>
-                                <div><label class="block font-semibold mb-1">Balance Due</label><div class="text-lg font-bold text-rose-600 mt-1">₹<span id="fs-display-balance">1450</span></div></div>
+                                <div>
+                                    <label class="block font-semibold text-slate-700 mb-1">Payment Mode</label>
+                                    <select id="fs-mode" class="w-full px-3 py-2.5 border rounded-xl bg-slate-50 font-medium">
+                                        <option value="Cash (Hand)">Cash (In Hand)</option>
+                                        <option value="Online UPI">Online Pay (UPI / Bank)</option>
+                                        <option value="Partial Payment">Partial Payment (Credit)</option>
+                                        <option value="Credit / Pending">Full Credit (Pending)</option>
+                                    </select>
+                                </div>
+                                <div>
+                                    <label class="block font-semibold text-slate-700 mb-1">Remaining Balance Due</label>
+                                    <div class="text-lg font-extrabold text-rose-600 mt-1.5">₹<span id="fs-display-balance">1450</span></div>
+                                </div>
                             </div>
-                            <button type="submit" class="w-full bg-emerald-600 text-white py-2.5 rounded-xl font-semibold">Save Entry</button>
+
+                            <div class="flex justify-end gap-2 pt-3 border-t">
+                                <button type="button" onclick="closeFeedSaleModal()" class="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl font-semibold">Cancel</button>
+                                <button type="submit" class="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl font-semibold shadow">Save Feed Sale Entry</button>
+                            </div>
                         </form>
                     </div>
                 </div>
 
+                <!-- Clear Due / Pay Modal -->
                 <div id="pay-feed-modal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm hidden items-center justify-center p-4 z-50">
                     <div class="bg-white rounded-2xl max-w-sm w-full p-6 shadow-2xl">
-                        <div class="flex justify-between items-center mb-4 border-b pb-3"><h3 class="text-lg font-bold">Clear Due</h3><button onclick="closePayFeedModal()" class="text-xl font-bold">✕</button></div>
+                        <div class="flex justify-between items-center mb-4 border-b pb-3">
+                            <h3 class="text-lg font-bold text-slate-900">Record Payment / Clear Due</h3>
+                            <button onclick="closePayFeedModal()" class="text-slate-400 hover:text-slate-700 font-bold text-xl">✕</button>
+                        </div>
                         <input type="hidden" id="pay-feed-tx-id">
+                        <input type="hidden" id="pay-feed-customer-id">
                         <div class="space-y-4 text-xs">
-                            <div><label class="block font-semibold mb-1">Method</label><select id="pay-feed-method" class="w-full px-3 py-2 border rounded-xl bg-slate-50"><option value="Cash (Hand)">Cash (In Hand)</option><option value="Online UPI">Online UPI</option></select></div>
-                            <div><label class="block font-semibold mb-1">Amount (₹)</label><input type="number" id="pay-feed-amount" class="w-full px-3 py-2 border rounded-xl bg-slate-50 font-bold text-emerald-600"></div>
-                            <button onclick="confirmClearFeedDue()" class="w-full bg-emerald-600 text-white py-2 rounded-xl font-semibold">Confirm Payment</button>
+                            <div>
+                                <label class="block font-semibold text-slate-700 mb-1">Payment Method</label>
+                                <select id="pay-feed-method" class="w-full px-3 py-2.5 border rounded-xl bg-slate-50">
+                                    <option value="Cash (Hand)">Cash (In Hand)</option>
+                                    <option value="Online UPI">Online Pay (UPI / Bank)</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label class="block font-semibold text-slate-700 mb-1">Payment Amount (₹)</label>
+                                <input type="number" id="pay-feed-amount" min="1" required class="w-full px-3 py-2.5 border rounded-xl bg-slate-50 font-bold text-emerald-600">
+                                <p class="text-[10px] text-slate-500 mt-1">Payment will be automatically applied to outstanding balances (oldest first).</p>
+                            </div>
+                            <button onclick="confirmClearFeedDue()" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white py-2.5 rounded-xl font-semibold shadow">Confirm Payment & Update Balance</button>
                         </div>
                     </div>
                 </div>
             `;
+        }
+
+        // ==========================================
+        // CUSTOMER CREDIT PROFILE VIEW
+        // ==========================================
+        function renderCustomerCreditProfile(farmerId) {
+            const f = DEFAULT_STATE.farmers.find(item => item.id === farmerId) || { id: farmerId, name: "Customer", village: "Village" };
+            const cb = getCustomerBalance(farmerId);
+
+            return `
+                <div class="space-y-6">
+                    <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200 flex justify-between items-center">
+                        <div class="flex items-center gap-4">
+                            <button onclick="setView('feed_sales')" class="bg-slate-100 hover:bg-slate-200 text-slate-700 px-3 py-2 rounded-xl text-xs font-semibold">← Back to Feed Sales</button>
+                            <div>
+                                <span class="text-xs bg-emerald-100 text-emerald-800 px-2 py-0.5 rounded font-bold">${f.id}</span>
+                                <h2 class="text-xl font-bold text-slate-900 mt-1">${f.name} — Credit Profile</h2>
+                                <p class="text-xs text-slate-500">Village: ${f.village || 'N/A'} | Mobile: ${f.phone || 'N/A'}</p>
+                            </div>
+                        </div>
+                        ${cb.outstandingBalance > 0 ? `<button onclick="openPayFeedModalForCustomer('${f.id}')" class="bg-emerald-600 hover:bg-emerald-700 text-white px-4 py-2.5 rounded-xl text-xs font-semibold shadow">Make Payment</button>` : ''}
+                    </div>
+
+                    <!-- Customer KPI Cards (Rule 10 & 13) -->
+                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                        <div class="dairy-card p-5">
+                            <div class="text-xs font-semibold text-slate-500 uppercase">Total Purchases</div>
+                            <div class="text-2xl font-bold text-slate-900 mt-1">₹${cb.totalPurchases.toLocaleString()}</div>
+                        </div>
+                        <div class="dairy-card p-5">
+                            <div class="text-xs font-semibold text-slate-500 uppercase">Total Amount Paid</div>
+                            <div class="text-2xl font-bold text-emerald-600 mt-1">₹${cb.totalPaid.toLocaleString()}</div>
+                        </div>
+                        <div class="dairy-card p-5">
+                            <div class="text-xs font-semibold text-slate-500 uppercase">Total Outstanding Balance Due</div>
+                            <div class="text-2xl font-bold text-rose-600 mt-1">₹${cb.outstandingBalance.toLocaleString()}</div>
+                        </div>
+                    </div>
+
+                    <!-- Purchase History (Rule 10 & 11) -->
+                    <div class="dairy-card overflow-hidden p-6 space-y-4">
+                        <h3 class="font-bold text-slate-900 text-base">Individual Purchase History (${cb.sales.length} orders)</h3>
+                        <div class="overflow-x-auto">
+                            <table class="w-full text-left border-collapse text-xs">
+                                <thead class="bg-slate-100">
+                                    <tr>
+                                        <th class="p-3">Tx ID & Date</th>
+                                        <th class="p-3">Feed Variety</th>
+                                        <th class="p-3">Bags</th>
+                                        <th class="p-3">Total Cost</th>
+                                        <th class="p-3">Paid at Purchase</th>
+                                        <th class="p-3">Status / Balance Due</th>
+                                    </tr>
+                                </thead>
+                                <tbody class="divide-y font-medium text-slate-700">
+                                    ${cb.sales.map(s => `
+                                        <tr>
+                                            <td class="p-3 font-bold text-emerald-700">${s.id}<br><span class="text-[10px] text-slate-400">${s.date}</span></td>
+                                            <td class="p-3">${s.feedName}</td>
+                                            <td class="p-3 font-bold">${s.bags} bags</td>
+                                            <td class="p-3 font-semibold">₹${s.totalAmount}</td>
+                                            <td class="p-3 font-semibold text-emerald-600">₹${s.paidAmount}</td>
+                                            <td class="p-3 font-bold ${s.balanceDue > 0 ? 'text-rose-600' : 'text-emerald-600'}">${s.balanceDue > 0 ? `Due: ₹${s.balanceDue}` : 'Fully Settled ✓'}</td>
+                                        </tr>
+                                    `).join('')}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <!-- Payment History (Rule 9 & 10) -->
+                    <div class="dairy-card overflow-hidden p-6 space-y-4">
+                        <h3 class="font-bold text-slate-900 text-base">Individual Payment History (${cb.payments.length} payments)</h3>
+                        <div class="overflow-x-auto">
+                            <table class="w-full text-left border-collapse text-xs">
+                                <thead class="bg-slate-100">
+                                    <tr>
+                                        <th class="p-3">Payment ID</th>
+                                        <th class="p-3">Date</th>
+                                        <th class="p-3">Payment Method</th>
+                                        <th class="p-3">Amount Paid</th>
+                                    </tr>
+                                </thead>
+                                <tbody class="divide-y font-medium text-slate-700">
+                                    ${cb.payments.length === 0 ? '<tr><td colspan="4" class="p-4 text-center text-slate-500">No separate payment records found.</td></tr>' : cb.payments.map(p => `
+                                        <tr>
+                                            <td class="p-3 font-bold text-sky-700">${p.id}</td>
+                                            <td class="p-3">${p.date}</td>
+                                            <td class="p-3"><span class="px-2 py-0.5 bg-slate-100 rounded font-bold">${p.method}</span></td>
+                                            <td class="p-3 font-bold text-emerald-600">₹${p.amount}</td>
+                                        </tr>
+                                    `).join('')}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        function viewCustomerCreditProfile(farmerId) {
+            DEFAULT_STATE.activeCustomerProfileId = farmerId;
+            renderApp();
         }
 
         function openFeedSaleModal() {
@@ -638,24 +928,34 @@
             document.getElementById('feed-sale-modal').classList.add('flex');
             updateFeedSaleCalc();
         }
+
         function closeFeedSaleModal() {
             document.getElementById('feed-sale-modal').classList.add('hidden');
             document.getElementById('feed-sale-modal').classList.remove('flex');
         }
+
         function updateFeedSaleCalc() {
             const feedSelect = document.getElementById('fs-feed-id');
             const bagsInput = document.getElementById('fs-bags');
             const paidInput = document.getElementById('fs-paid');
+
             if (!feedSelect || !bagsInput || !paidInput) return;
-            const price = parseFloat(feedSelect.options[feedSelect.selectedIndex].getAttribute('data-price')) || 1450;
+
+            const selectedOption = feedSelect.options[feedSelect.selectedIndex];
+            const price = parseFloat(selectedOption.getAttribute('data-price')) || 1450;
             const bags = parseInt(bagsInput.value) || 1;
             const total = price * bags;
-            if (document.activeElement !== paidInput && paidInput.value === "0") paidInput.value = 0;
+
+            if (document.activeElement !== paidInput && paidInput.value === "0") {
+                paidInput.value = 0;
+            }
             const paid = parseFloat(paidInput.value) || 0;
             const balance = Math.max(0, total - paid);
+
             document.getElementById('fs-display-total').innerText = total.toFixed(2);
             document.getElementById('fs-display-balance').innerText = balance.toFixed(2);
         }
+
         function submitFeedSale(e) {
             e.preventDefault();
             const farmerId = document.getElementById('fs-farmer-id').value;
@@ -669,45 +969,128 @@
             const paymentMode = document.getElementById('fs-mode').value;
             const balanceDue = Math.max(0, totalAmount - paidAmount);
 
-            DEFAULT_STATE.feedSales.unshift({
+            const newSale = {
                 id: "FS-" + (100 + DEFAULT_STATE.feedSales.length + 1),
                 farmerId,
                 farmerName: farmer ? farmer.name : "Unknown",
                 date: new Date().toISOString().split('T')[0],
-                feedName, bags, unitPrice, totalAmount, paidAmount,
-                paymentMode: paidAmount === totalAmount ? paymentMode : (paidAmount > 0 ? "Partial Payment" : "Credit / Pending"),
+                feedName,
+                bags,
+                unitPrice,
+                totalAmount,
+                paidAmount,
+                paymentMode: paidAmount === totalAmount ? `${paymentMode} (Settled)` : (paidAmount > 0 ? "Partial Payment" : "Credit / Pending"),
                 balanceDue
-            });
+            };
+
+            DEFAULT_STATE.feedSales.unshift(newSale);
             saveState();
             closeFeedSaleModal();
             renderApp();
         }
+
         function openPayFeedModal(txId) {
             const tx = DEFAULT_STATE.feedSales.find(s => s.id === txId);
             if (!tx) return;
             document.getElementById('pay-feed-tx-id').value = txId;
+            document.getElementById('pay-feed-customer-id').value = '';
             document.getElementById('pay-feed-amount').value = tx.balanceDue;
             document.getElementById('pay-feed-modal').classList.remove('hidden');
             document.getElementById('pay-feed-modal').classList.add('flex');
         }
+
+        function openPayFeedModalForCustomer(farmerId) {
+            const cb = getCustomerBalance(farmerId);
+            document.getElementById('pay-feed-tx-id').value = '';
+            document.getElementById('pay-feed-customer-id').value = farmerId;
+            document.getElementById('pay-feed-amount').value = cb.outstandingBalance;
+            document.getElementById('pay-feed-modal').classList.remove('hidden');
+            document.getElementById('pay-feed-modal').classList.add('flex');
+        }
+
         function closePayFeedModal() {
             document.getElementById('pay-feed-modal').classList.add('hidden');
             document.getElementById('pay-feed-modal').classList.remove('flex');
         }
+
+        // Rule 4, 5, 9, 14: Payment distribution (FIFO / oldest unpaid first)
         function confirmClearFeedDue() {
             const txId = document.getElementById('pay-feed-tx-id').value;
+            const customerId = document.getElementById('pay-feed-customer-id').value;
             const payAmount = parseFloat(document.getElementById('pay-feed-amount').value) || 0;
             const method = document.getElementById('pay-feed-method').value;
-            const tx = DEFAULT_STATE.feedSales.find(s => s.id === txId);
-            if (tx) {
-                tx.paidAmount += payAmount;
-                tx.balanceDue = Math.max(0, tx.totalAmount - tx.paidAmount);
-                tx.paymentMode = tx.balanceDue === 0 ? `${method} (Settled)` : "Partial Payment";
-                saveState();
-                closePayFeedModal();
-                renderApp();
+
+            if (payAmount <= 0) {
+                alert("Please enter a valid payment amount.");
+                return;
             }
+
+            if (txId) {
+                // Single transaction payment
+                const tx = DEFAULT_STATE.feedSales.find(s => s.id === txId);
+                if (tx) {
+                    if (payAmount > tx.balanceDue) {
+                        alert(`Payment cannot exceed remaining balance of ₹${tx.balanceDue}`);
+                        return;
+                    }
+                    tx.paidAmount += payAmount;
+                    tx.balanceDue = Math.max(0, tx.totalAmount - tx.paidAmount);
+                    tx.paymentMode = tx.balanceDue === 0 ? `${method} (Settled)` : "Partial Payment";
+
+                    DEFAULT_STATE.feedPayments.unshift({
+                        id: "FP-" + (100 + DEFAULT_STATE.feedPayments.length + 1),
+                        farmerId: tx.farmerId,
+                        farmerName: tx.farmerName,
+                        date: new Date().toISOString().split('T')[0],
+                        amount: payAmount,
+                        method
+                    });
+                }
+            } else if (customerId) {
+                // General customer account payment (distribute oldest unpaid first - FIFO)
+                const cb = getCustomerBalance(customerId);
+                if (payAmount > cb.outstandingBalance) {
+                    alert(`Payment cannot exceed total outstanding balance of ₹${cb.outstandingBalance}`);
+                    return;
+                }
+
+                let remainingPayment = payAmount;
+                const customerSales = DEFAULT_STATE.feedSales.filter(s => s.farmerId === customerId && s.balanceDue > 0);
+
+                // Distribute payment across unpaid transactions (oldest first)
+                for (let tx of customerSales) {
+                    if (remainingPayment <= 0) break;
+                    const applyAmt = Math.min(remainingPayment, tx.balanceDue);
+                    tx.paidAmount += applyAmt;
+                    tx.balanceDue = Math.max(0, tx.totalAmount - tx.paidAmount);
+                    tx.paymentMode = tx.balanceDue === 0 ? `${method} (Settled)` : "Partial Payment";
+                    remainingPayment -= applyAmt;
+                }
+
+                const farmer = DEFAULT_STATE.farmers.find(f => f.id === customerId);
+                DEFAULT_STATE.feedPayments.unshift({
+                    id: "FP-" + (100 + DEFAULT_STATE.feedPayments.length + 1),
+                    farmerId: customerId,
+                    farmerName: farmer ? farmer.name : "Customer",
+                    date: new Date().toISOString().split('T')[0],
+                    amount: payAmount,
+                    method
+                });
+            }
+
+            saveState();
+            closePayFeedModal();
+            renderApp();
         }
+
+        function filterFeedTable() {
+            const q = document.getElementById('feed-search').value.toLowerCase();
+            const rows = document.querySelectorAll('#feed-table-body tr');
+            rows.forEach(r => {
+                r.style.display = r.innerText.toLowerCase().includes(q) ? '' : 'none';
+            });
+        }
+
         function renderFarmersPage() { return `<div class="dairy-card p-6"><h2 class="text-xl font-bold">Farmer Management</h2></div>`; }
         function renderMilkEntryPage() { return `<div class="dairy-card p-6"><h2 class="text-xl font-bold">Milk Entry</h2></div>`; }
         function renderRatesPage() { return `<div class="dairy-card p-6"><h2 class="text-xl font-bold">Rates</h2></div>`; }
@@ -717,7 +1100,6 @@
         function renderAnalyticsPage() { return `<div class="dairy-card p-6"><h2 class="text-xl font-bold">Analytics</h2></div>`; }
         function renderFarmerDashboard() { return renderFeedSalesPage(); }
         function renderSettingsPage() { return `<div class="dairy-card p-6"><h2 class="text-xl font-bold">Settings</h2></div>`; }
-        function filterDashTable() {}
         function attachViewListeners() {}
     </script>
 </body>
