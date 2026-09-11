@@ -1,5 +1,5 @@
 // Arun Traders - Milk Collection & Society Management System
-// Complete Application Logic & State Management
+// Complete Application Logic & State Management with Feed Sales & Credit Ledger
 
 document.addEventListener('DOMContentLoaded', () => {
     initializeApp();
@@ -8,7 +8,7 @@ document.addEventListener('DOMContentLoaded', () => {
 // Initial Database & State
 const DEFAULT_STATE = {
     currentUser: null, // { username, role, name, farmerId }
-    currentView: 'login', // login, admin_dashboard, operator_dashboard, farmer_dashboard, farmers, milk_entry, morning_col, evening_col, rates, ledger, payments, reports, analytics, settings
+    currentView: 'login', // login, admin_dashboard, operator_dashboard, farmer_dashboard, farmers, milk_entry, morning_col, evening_col, rates, ledger, payments, reports, analytics, feed_sales, settings
     settings: {
         societyName: "Arun Traders – Milk Collection & Society Management System",
         companySupport: "Supported by VK Milk",
@@ -45,6 +45,27 @@ const DEFAULT_STATE = {
         { id: "F019", name: "Senthil", phone: "9655112233", address: "Dindigul Road", village: "Thadikombu", animalType: "Cow", cows: 3, buffaloes: 0, regDate: "2023-12-18", bank: "IOB - 3536373839", upi: "senthil@paytm", status: "Active" },
         { id: "F020", name: "Malar", phone: "9840223344", address: "Kovil Street", village: "Alagapuri", animalType: "Mixed", cows: 1, buffaloes: 2, regDate: "2024-01-02", bank: "KVB - 4041424344", upi: "malar@oksbi", status: "Active" }
     ],
+    feedProducts: [
+        { id: "FEE-01", name: "Nutribest 50kg", category: "First Quality", price: 1450 },
+        { id: "FEE-02", name: "Nutribest 70kg", category: "First Quality", price: 1980 },
+        { id: "FEE-03", name: "Lactobest 50kg", category: "First Quality", price: 1400 },
+        { id: "FEE-04", name: "Lactobest 70kg", category: "First Quality", price: 1920 },
+        { id: "FEE-05", name: "Milky best 50kg", category: "Second Quality", price: 1350 },
+        { id: "FEE-06", name: "Milky best 70kg", category: "Second Quality", price: 1850 },
+        { id: "FEE-07", name: "Milky best 20kg", category: "Second Quality", price: 620 },
+        { id: "FEE-08", name: "Dairybest 50kg", category: "Second Quality", price: 1300 },
+        { id: "FEE-09", name: "Dairybest 70kg", category: "Second Quality", price: 1780 },
+        { id: "FEE-10", name: "Dairybest 20kg", category: "Second Quality", price: 590 },
+        { id: "FEE-11", name: "Delite 50kg", category: "Third Quality", price: 1250 },
+        { id: "FEE-12", name: "Delite 70kg", category: "Third Quality", price: 1700 }
+    ],
+    feedSales: [
+        { id: "FS-101", farmerId: "F001", farmerName: "Ramesh Kumar", date: "2024-08-05", feedName: "Nutribest 50kg", bags: 2, unitPrice: 1450, totalAmount: 2900, paidAmount: 1000, paymentMode: "Cash (Hand)", balanceDue: 1900 },
+        { id: "FS-102", farmerId: "F002", farmerName: "Suresh", date: "2024-08-05", feedName: "Nutribest 70kg", bags: 1, unitPrice: 1980, totalAmount: 1980, paidAmount: 1980, paymentMode: "Online UPI", balanceDue: 0 },
+        { id: "FS-103", farmerId: "F003", farmerName: "Arun Kumar", date: "2024-08-07", feedName: "Lactobest 50kg", bags: 4, unitPrice: 1400, totalAmount: 5600, paidAmount: 2000, paymentMode: "Partial Payment", balanceDue: 3600 },
+        { id: "FS-104", farmerId: "F004", farmerName: "Meena", date: "2024-08-10", feedName: "Milky best 50kg", bags: 2, unitPrice: 1350, totalAmount: 2700, paidAmount: 2700, paymentMode: "Cash (Hand)", balanceDue: 0 },
+        { id: "FS-105", farmerId: "F005", farmerName: "Lakshmi", date: "2024-08-12", feedName: "Dairybest 70kg", bags: 3, unitPrice: 1780, totalAmount: 5340, paidAmount: 1000, paymentMode: "Partial Payment", balanceDue: 4340 }
+    ],
     rateCharts: [
         { id: 1, milkType: "Cow", fatMin: 3.0, fatMax: 3.4, snf: 8.3, rate: 36.0, bonus: 1.0, deduction: 0.0, effectiveFrom: "2024-01-01" },
         { id: 2, milkType: "Cow", fatMin: 3.5, fatMax: 3.9, snf: 8.5, rate: 40.0, bonus: 1.0, deduction: 0.0, effectiveFrom: "2024-01-01" },
@@ -58,31 +79,13 @@ const DEFAULT_STATE = {
     collections: [
         { id: "MC1001", farmerId: "F001", farmerName: "Ramesh Kumar", date: "2024-05-20", time: "06:42 AM", shift: "Morning", milkType: "Cow", litres: 12.5, fat: 4.2, snf: 8.5, clr: 28.5, rate: 44.0, amount: 550.0, operatorId: "OP01", status: "Accepted" },
         { id: "MC1002", farmerId: "F002", farmerName: "Suresh", date: "2024-05-20", time: "06:50 AM", shift: "Morning", milkType: "Cow", litres: 15.0, fat: 4.5, snf: 8.7, clr: 29.0, rate: 48.0, amount: 720.0, operatorId: "OP01", status: "Accepted" },
-        { id: "MC1003", farmerId: "F003", farmerName: "Arun Kumar", date: "2024-05-20", time: "07:05 AM", shift: "Morning", milkType: "Mixed", litres: 18.0, fat: 4.1, snf: 8.5, clr: 28.0, rate: 42.0, amount: 756.0, operatorId: "OP01", status: "Accepted" },
-        { id: "MC1004", farmerId: "F004", farmerName: "Meena", date: "2024-05-20", time: "07:15 AM", shift: "Morning", milkType: "Cow", litres: 10.0, fat: 3.8, snf: 8.4, clr: 27.5, rate: 40.0, amount: 400.0, operatorId: "OP01", status: "Accepted" },
-        { id: "MC1005", farmerId: "F005", farmerName: "Lakshmi", date: "2024-05-20", time: "07:30 AM", shift: "Morning", milkType: "Buffalo", litres: 14.0, fat: 6.5, snf: 9.2, clr: 30.5, rate: 60.0, amount: 840.0, operatorId: "OP01", status: "Accepted" },
-        { id: "MC1006", farmerId: "F006", farmerName: "Selvi", date: "2024-05-20", time: "07:45 AM", shift: "Mixed", litres: 8.5, fat: 4.0, snf: 8.5, clr: 28.0, rate: 42.0, amount: 357.0, operatorId: "OP01", status: "Accepted" },
-        { id: "MC1007", farmerId: "F007", farmerName: "Kumar", date: "2024-05-20", time: "08:00 AM", shift: "Morning", milkType: "Cow", litres: 22.0, fat: 4.6, snf: 8.8, clr: 29.5, rate: 48.0, amount: 1056.0, operatorId: "OP01", status: "Accepted" },
-        { id: "MC1008", farmerId: "F008", farmerName: "Murugan", date: "2024-05-20", time: "08:15 AM", shift: "Morning", milkType: "Mixed", litres: 16.5, fat: 4.3, snf: 8.6, clr: 28.5, rate: 42.0, amount: 693.0, operatorId: "OP01", status: "Accepted" },
-        { id: "MC1009", farmerId: "F009", farmerName: "Priya", date: "2024-05-20", time: "08:30 AM", shift: "Morning", milkType: "Cow", litres: 9.0, fat: 3.9, snf: 8.5, clr: 28.0, rate: 40.0, amount: 360.0, operatorId: "OP01", status: "Accepted" },
-        { id: "MC1010", farmerId: "F010", farmerName: "Saravanan", date: "2024-05-20", time: "08:45 AM", shift: "Morning", milkType: "Mixed", litres: 20.0, fat: 4.4, snf: 8.7, clr: 29.0, rate: 42.0, amount: 840.0, operatorId: "OP01", status: "Accepted" },
-        { id: "MC1011", farmerId: "F001", farmerName: "Ramesh Kumar", date: "2024-05-19", time: "05:30 PM", shift: "Evening", milkType: "Cow", litres: 10.0, fat: 4.3, snf: 8.6, clr: 28.8, rate: 44.0, amount: 440.0, operatorId: "OP01", status: "Accepted" },
-        { id: "MC1012", farmerId: "F002", farmerName: "Suresh", date: "2024-05-19", time: "05:45 PM", shift: "Evening", milkType: "Cow", litres: 12.0, fat: 4.6, snf: 8.8, clr: 29.5, rate: 48.0, amount: 576.0, operatorId: "OP01", status: "Accepted" },
-        { id: "MC1013", farmerId: "F003", farmerName: "Arun Kumar", date: "2024-05-19", time: "06:00 PM", shift: "Evening", milkType: "Mixed", litres: 14.0, fat: 4.2, snf: 8.5, clr: 28.2, rate: 42.0, amount: 588.0, operatorId: "OP01", status: "Accepted" },
-        { id: "MC1014", farmerId: "F005", farmerName: "Lakshmi", date: "2024-05-19", time: "06:15 PM", shift: "Evening", milkType: "Buffalo", litres: 12.0, fat: 6.8, snf: 9.4, clr: 31.0, rate: 68.0, amount: 816.0, operatorId: "OP01", status: "Accepted" },
-        { id: "MC1015", farmerId: "F007", farmerName: "Kumar", date: "2024-05-19", time: "06:30 PM", shift: "Evening", milkType: "Cow", litres: 18.0, fat: 4.5, snf: 8.7, clr: 29.0, rate: 48.0, amount: 864.0, operatorId: "OP01", status: "Accepted" }
+        { id: "MC1003", farmerId: "F003", farmerName: "Arun Kumar", date: "2024-05-20", time: "07:05 AM", shift: "Morning", milkType: "Mixed", litres: 18.0, fat: 4.1, snf: 8.5, clr: 28.0, rate: 42.0, amount: 756.0, operatorId: "OP01", status: "Accepted" }
     ],
     payments: [
-        { id: "PAY-501", farmerId: "F001", farmerName: "Ramesh Kumar", date: "2024-05-13", amount: 6450.0, method: "Bank Transfer", referenceNumber: "UTIB0001234", status: "Paid" },
-        { id: "PAY-502", farmerId: "F002", farmerName: "Suresh", date: "2024-05-13", amount: 7800.0, method: "UPI", referenceNumber: "UPI/413256789", status: "Paid" },
-        { id: "PAY-503", farmerId: "F003", farmerName: "Arun Kumar", date: "2024-05-13", amount: 8920.0, method: "Bank Transfer", referenceNumber: "SBIN0987654", status: "Paid" },
-        { id: "PAY-504", farmerId: "F004", farmerName: "Meena", date: "2024-05-13", amount: 4500.0, method: "Cash", referenceNumber: "CASH-098", status: "Paid" },
-        { id: "PAY-505", farmerId: "F005", farmerName: "Lakshmi", date: "2024-05-13", amount: 9600.0, method: "Bank Transfer", referenceNumber: "CNRB0005678", status: "Paid" }
+        { id: "PAY-501", farmerId: "F001", farmerName: "Ramesh Kumar", date: "2024-05-13", amount: 6450.0, method: "Bank Transfer", referenceNumber: "UTIB0001234", status: "Paid" }
     ],
     ledgers: [
-        { farmerId: "F001", farmerName: "Ramesh Kumar", opening: 0, earnings: 8250, bonuses: 250, deductions: 50, advances: 500, payments: 6450, closing: 1500 },
-        { farmerId: "F002", farmerName: "Suresh", opening: 0, earnings: 9400, bonuses: 300, deductions: 0, advances: 1000, payments: 7800, closing: 900 },
-        { farmerId: "F003", farmerName: "Arun Kumar", opening: 0, earnings: 10200, bonuses: 350, deductions: 100, advances: 500, payments: 8920, closing: 1030 }
+        { farmerId: "F001", farmerName: "Ramesh Kumar", opening: 0, earnings: 8250, bonuses: 250, deductions: 50, advances: 500, payments: 6450, closing: 1500 }
     ],
     activeReceipt: null
 };
@@ -157,7 +160,6 @@ function renderApp() {
         return;
     }
 
-    // Render Layout with Sidebar / Topbar / BottomNav
     root.innerHTML = `
         <div class="min-h-screen flex flex-col md:flex-row bg-slate-50">
             <!-- Desktop Sidebar -->
@@ -190,7 +192,6 @@ function renderApp() {
 
             <!-- Main Content Area -->
             <div class="flex-1 flex flex-col min-w-0">
-                <!-- Top Header Bar -->
                 <header class="bg-white border-b border-slate-200 h-16 flex items-center justify-between px-6 shadow-sm">
                     <div class="flex items-center space-x-4">
                         <h1 class="text-lg font-bold text-slate-800 flex items-center gap-2">
@@ -212,12 +213,10 @@ function renderApp() {
                     </div>
                 </header>
 
-                <!-- Dynamic View Container -->
                 <main class="flex-1 p-4 md:p-8 max-w-7xl w-full mx-auto animate-fade-in">
                     ${renderCurrentView()}
                 </main>
 
-                <!-- Footer -->
                 <footer class="bg-white border-t border-slate-200 py-4 px-6 text-center text-xs text-slate-500 flex flex-col sm:flex-row justify-between items-center gap-2">
                     <div>© ${new Date().getFullYear()} Arun Traders – Milk Collection & Society Management System</div>
                     <div class="tamil-text text-emerald-700 font-medium">அருண் டிரேடர்ஸ் | பால் சேகரிப்பு மையம் | VKA Milk ஆதரவுடன்</div>
@@ -225,7 +224,6 @@ function renderApp() {
             </div>
         </div>
 
-        <!-- Receipt Modal if active -->
         ${DEFAULT_STATE.activeReceipt ? renderReceiptModal() : ''}
     `;
 
@@ -247,6 +245,7 @@ function getViewTitle() {
         case 'payments': return 'Payment Management / பணப் பரிமாற்றம்';
         case 'reports': return 'Professional Reports / விரிவான அறிக்கைகள்';
         case 'analytics': return 'Advanced Analytics / மேம்பட்ட பகுப்பாய்வு';
+        case 'feed_sales': return 'Feed Sales & Credit Ledger / தீவன விற்பனை கடன் கணக்கு';
         case 'settings': return 'System Settings / அமைப்பு அமைப்புகள்';
         default: return 'Dashboard';
     }
@@ -256,9 +255,9 @@ function renderSidebarContent() {
     const role = DEFAULT_STATE.currentUser.role;
     let navItems = '';
 
-    if (role === 'admin') {
+    if (role === 'admin' || role === 'operator') {
         navItems = `
-            <a href="#" onclick="setView('admin_dashboard')" class="flex items-center space-x-3 px-4 py-3 rounded-xl text-sm font-medium ${DEFAULT_STATE.currentView === 'admin_dashboard' ? 'bg-emerald-600 text-white shadow-md' : 'text-slate-300 hover:bg-slate-800'}">
+            <a href="#" onclick="setView('${role === 'admin' ? 'admin_dashboard' : 'operator_dashboard'}')" class="flex items-center space-x-3 px-4 py-3 rounded-xl text-sm font-medium ${DEFAULT_STATE.currentView.includes('dashboard') ? 'bg-emerald-600 text-white shadow-md' : 'text-slate-300 hover:bg-slate-800'}">
                 <span>📊</span> <span>Dashboard</span>
             </a>
             <a href="#" onclick="setView('farmers')" class="flex items-center space-x-3 px-4 py-3 rounded-xl text-sm font-medium ${DEFAULT_STATE.currentView === 'farmers' ? 'bg-emerald-600 text-white shadow-md' : 'text-slate-300 hover:bg-slate-800'}">
@@ -266,6 +265,9 @@ function renderSidebarContent() {
             </a>
             <a href="#" onclick="setView('milk_entry')" class="flex items-center space-x-3 px-4 py-3 rounded-xl text-sm font-medium ${DEFAULT_STATE.currentView === 'milk_entry' ? 'bg-emerald-600 text-white shadow-md' : 'text-slate-300 hover:bg-slate-800'}">
                 <span>🥛</span> <span>Fast Milk Entry</span>
+            </a>
+            <a href="#" onclick="setView('feed_sales')" class="flex items-center space-x-3 px-4 py-3 rounded-xl text-sm font-medium ${DEFAULT_STATE.currentView === 'feed_sales' ? 'bg-emerald-600 text-white shadow-md' : 'text-slate-300 hover:bg-slate-800'}">
+                <span>🌾</span> <span>Feed Sales & Credit</span>
             </a>
             <a href="#" onclick="setView('morning_col')" class="flex items-center space-x-3 px-4 py-3 rounded-xl text-sm font-medium ${DEFAULT_STATE.currentView === 'morning_col' ? 'bg-emerald-600 text-white shadow-md' : 'text-slate-300 hover:bg-slate-800'}">
                 <span>🌅</span> <span>Morning Collection</span>
@@ -288,32 +290,18 @@ function renderSidebarContent() {
             <a href="#" onclick="setView('analytics')" class="flex items-center space-x-3 px-4 py-3 rounded-xl text-sm font-medium ${DEFAULT_STATE.currentView === 'analytics' ? 'bg-emerald-600 text-white shadow-md' : 'text-slate-300 hover:bg-slate-800'}">
                 <span>🔍</span> <span>Analytics & Insights</span>
             </a>
+            ${role === 'admin' ? `
             <a href="#" onclick="setView('settings')" class="flex items-center space-x-3 px-4 py-3 rounded-xl text-sm font-medium ${DEFAULT_STATE.currentView === 'settings' ? 'bg-emerald-600 text-white shadow-md' : 'text-slate-300 hover:bg-slate-800'}">
                 <span>⚙️</span> <span>Settings (அமைப்புகள்)</span>
-            </a>
-        `;
-    } else if (role === 'operator') {
-        navItems = `
-            <a href="#" onclick="setView('operator_dashboard')" class="flex items-center space-x-3 px-4 py-3 rounded-xl text-sm font-medium ${DEFAULT_STATE.currentView === 'operator_dashboard' ? 'bg-emerald-600 text-white shadow-md' : 'text-slate-300 hover:bg-slate-800'}">
-                <span>📊</span> <span>Operator Dashboard</span>
-            </a>
-            <a href="#" onclick="setView('milk_entry')" class="flex items-center space-x-3 px-4 py-3 rounded-xl text-sm font-medium ${DEFAULT_STATE.currentView === 'milk_entry' ? 'bg-emerald-600 text-white shadow-md' : 'text-slate-300 hover:bg-slate-800'}">
-                <span>🥛</span> <span>Fast Milk Entry</span>
-            </a>
-            <a href="#" onclick="setView('morning_col')" class="flex items-center space-x-3 px-4 py-3 rounded-xl text-sm font-medium ${DEFAULT_STATE.currentView === 'morning_col' ? 'bg-emerald-600 text-white shadow-md' : 'text-slate-300 hover:bg-slate-800'}">
-                <span>🌅</span> <span>Morning Collection</span>
-            </a>
-            <a href="#" onclick="setView('evening_col')" class="flex items-center space-x-3 px-4 py-3 rounded-xl text-sm font-medium ${DEFAULT_STATE.currentView === 'evening_col' ? 'bg-emerald-600 text-white shadow-md' : 'text-slate-300 hover:bg-slate-800'}">
-                <span>🌇</span> <span>Evening Collection</span>
-            </a>
-            <a href="#" onclick="setView('farmers')" class="flex items-center space-x-3 px-4 py-3 rounded-xl text-sm font-medium ${DEFAULT_STATE.currentView === 'farmers' ? 'bg-emerald-600 text-white shadow-md' : 'text-slate-300 hover:bg-slate-800'}">
-                <span>👨‍🌾</span> <span>Farmers List</span>
-            </a>
+            </a>` : ''}
         `;
     } else if (role === 'farmer') {
         navItems = `
             <a href="#" onclick="setView('farmer_dashboard')" class="flex items-center space-x-3 px-4 py-3 rounded-xl text-sm font-medium ${DEFAULT_STATE.currentView === 'farmer_dashboard' ? 'bg-emerald-600 text-white shadow-md' : 'text-slate-300 hover:bg-slate-800'}">
                 <span>🏠</span> <span>My Dashboard</span>
+            </a>
+            <a href="#" onclick="setView('feed_sales')" class="flex items-center space-x-3 px-4 py-3 rounded-xl text-sm font-medium ${DEFAULT_STATE.currentView === 'feed_sales' ? 'bg-emerald-600 text-white shadow-md' : 'text-slate-300 hover:bg-slate-800'}">
+                <span>🌾</span> <span>My Feed Purchases</span>
             </a>
         `;
     }
@@ -391,19 +379,11 @@ function renderLoginPage() {
                         <input type="password" id="login-password" value="admin123" required class="w-full px-4 py-2.5 rounded-xl border border-slate-300 focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 bg-slate-50 text-slate-800 text-sm" placeholder="••••••••">
                     </div>
 
-                    <div class="flex items-center justify-between text-xs">
-                        <label class="flex items-center text-slate-600">
-                            <input type="checkbox" class="rounded border-slate-300 text-emerald-600 focus:ring-emerald-500 mr-2"> Remember me
-                        </label>
-                        <a href="#" onclick="alert('Please contact Arun Traders Admin to reset your password.')" class="text-emerald-600 hover:underline font-medium">Forgot password?</a>
-                    </div>
-
                     <button type="submit" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-semibold py-3 rounded-xl transition shadow-lg shadow-emerald-600/30 text-sm">
                         Login to Dashboard
                     </button>
                 </form>
 
-                <!-- Quick Demo Logins -->
                 <div class="mt-6 pt-6 border-t border-slate-100">
                     <p class="text-xs text-center text-slate-500 mb-3 font-medium">Quick Demo Access (Click to Test):</p>
                     <div class="grid grid-cols-3 gap-2">
@@ -474,6 +454,8 @@ function renderCurrentView() {
             return renderReportsPage();
         case 'analytics':
             return renderAnalyticsPage();
+        case 'feed_sales':
+            return renderFeedSalesPage();
         case 'settings':
             return renderSettingsPage();
         default:
@@ -482,271 +464,113 @@ function renderCurrentView() {
 }
 
 // ==========================================
-// DASHBOARD VIEW
+// CATTLE FEED SALES & CREDIT LEDGER MODULE
 // ==========================================
-function renderDashboard() {
-    const totalFarmers = DEFAULT_STATE.farmers.length;
-    const todayCols = DEFAULT_STATE.collections.filter(c => c.date === '2024-05-20');
-    const activeToday = new Set(todayCols.map(c => c.farmerId)).size;
-    const totalMilk = todayCols.reduce((acc, c) => acc + c.litres, 0);
-    const morningMilk = todayCols.filter(c => c.shift === 'Morning').reduce((acc, c) => acc + c.litres, 0);
-    const eveningMilk = todayCols.filter(c => c.shift === 'Evening').reduce((acc, c) => acc + c.litres, 0);
+function renderFeedSalesPage() {
+    const role = DEFAULT_STATE.currentUser.role;
+    const isFarmer = role === 'farmer';
+    const currentFarmerId = DEFAULT_STATE.currentUser.farmerId;
 
-    const avgFat = todayCols.length > 0 ? (todayCols.reduce((acc, c) => acc + c.fat, 0) / todayCols.length).toFixed(1) : "4.2";
-    const avgSnf = todayCols.length > 0 ? (todayCols.reduce((acc, c) => acc + c.snf, 0) / todayCols.length).toFixed(1) : "8.5";
-    const totalAmount = todayCols.reduce((acc, c) => acc + c.amount, 0);
+    let sales = DEFAULT_STATE.feedSales;
+    if (isFarmer) {
+        sales = sales.filter(s => s.farmerId === currentFarmerId);
+    }
+
+    const totalFeedSales = sales.reduce((acc, s) => acc + s.totalAmount, 0);
+    const totalPaid = sales.reduce((acc, s) => acc + s.paidAmount, 0);
+    const totalPendingDue = sales.reduce((acc, s) => acc + s.balanceDue, 0);
+    const totalCash = sales.filter(s => s.paymentMode.includes('Cash')).reduce((acc, s) => acc + s.paidAmount, 0);
+    const totalOnline = sales.filter(s => s.paymentMode.includes('Online')).reduce((acc, s) => acc + s.paidAmount, 0);
 
     return `
         <div class="space-y-6">
-            <!-- Welcome Banner -->
             <div class="bg-gradient-to-r from-emerald-600 to-teal-700 rounded-2xl p-6 text-white shadow-lg flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
                 <div>
-                    <div class="text-xs uppercase tracking-wider font-semibold text-emerald-200">Arun Traders • Society Management</div>
-                    <h2 class="text-2xl font-bold mt-1">Today's Milk Collection Overview</h2>
-                    <p class="text-sm text-emerald-100 mt-1">Live updates from society center • ${DEFAULT_STATE.settings.companySupport}</p>
+                    <div class="text-xs uppercase tracking-wider font-semibold text-emerald-200">Arun Traders • Cattle Feed Management</div>
+                    <h2 class="text-2xl font-bold mt-1">🌾 Feed Sales & Credit Ledger (தீவன விற்பனை கடன் கணக்கு)</h2>
+                    <p class="text-sm text-emerald-100 mt-1">Manage Nutribest, Lactobest, Milky best, Dairybest & Delite feed distribution & credits.</p>
                 </div>
-                <div class="flex items-center gap-3">
-                    <button onclick="setView('milk_entry')" class="bg-white text-emerald-700 hover:bg-emerald-50 px-4 py-2.5 rounded-xl text-sm font-semibold shadow transition flex items-center gap-2">
-                        <span>🥛</span> Fast Milk Entry
-                    </button>
-                    <button onclick="setView('reports')" class="bg-emerald-800/80 hover:bg-emerald-800 text-white px-4 py-2.5 rounded-xl text-sm font-semibold transition border border-emerald-500/30">
-                        View Reports
-                    </button>
-                </div>
+                ${!isFarmer ? `
+                <button onclick="openFeedSaleModal()" class="bg-white text-emerald-700 hover:bg-emerald-50 px-4 py-2.5 rounded-xl text-sm font-semibold shadow transition flex items-center gap-2">
+                    <span>+</span> New Feed Sale / Credit Entry
+                </button>` : ''}
             </div>
 
-            <!-- KPI Cards Grid -->
+            <!-- KPI Cards -->
             <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
                 <div class="dairy-card p-5">
-                    <div class="flex justify-between items-start">
-                        <div>
-                            <p class="text-xs font-semibold text-slate-500 uppercase tracking-wider">Total Farmers</p>
-                            <h3 class="text-2xl font-bold text-slate-900 mt-1">${totalFarmers}</h3>
-                        </div>
-                        <div class="p-3 bg-emerald-50 text-emerald-600 rounded-xl text-xl">👨‍🌾</div>
-                    </div>
-                    <div class="mt-3 flex items-center text-xs text-emerald-600 font-medium">
-                        <span>Active Today: ${activeToday} farmers</span>
-                    </div>
+                    <div class="text-xs font-semibold text-slate-500 uppercase">Total Feed Sales</div>
+                    <div class="text-2xl font-bold text-slate-900 mt-1">₹${totalFeedSales.toLocaleString()}</div>
                 </div>
-
                 <div class="dairy-card p-5">
-                    <div class="flex justify-between items-start">
-                        <div>
-                            <p class="text-xs font-semibold text-slate-500 uppercase tracking-wider">Today's Total Milk</p>
-                            <h3 class="text-2xl font-bold text-slate-900 mt-1">${totalMilk.toLocaleString()} L</h3>
-                        </div>
-                        <div class="p-3 bg-sky-50 text-sky-600 rounded-xl text-xl">🥛</div>
-                    </div>
-                    <div class="mt-3 flex items-center text-xs text-slate-600 font-medium justify-between">
-                        <span>🌅 Morn: ${morningMilk} L</span>
-                        <span>🌇 Eve: ${eveningMilk} L</span>
-                    </div>
+                    <div class="text-xs font-semibold text-slate-500 uppercase">Total Pending Due (Credit)</div>
+                    <div class="text-2xl font-bold text-amber-600 mt-1">₹${totalPendingDue.toLocaleString()}</div>
                 </div>
-
                 <div class="dairy-card p-5">
-                    <div class="flex justify-between items-start">
-                        <div>
-                            <p class="text-xs font-semibold text-slate-500 uppercase tracking-wider">Average Quality</p>
-                            <h3 class="text-2xl font-bold text-slate-900 mt-1">${avgFat}% FAT</h3>
-                        </div>
-                        <div class="p-3 bg-amber-50 text-amber-600 rounded-xl text-xl">⭐</div>
-                    </div>
-                    <div class="mt-3 flex items-center text-xs text-slate-600 font-medium">
-                        <span>SNF: ${avgSnf}% | CLR: 28.6</span>
-                    </div>
+                    <div class="text-xs font-semibold text-slate-500 uppercase">Cash Collected (In Hand)</div>
+                    <div class="text-2xl font-bold text-emerald-600 mt-1">₹${totalCash.toLocaleString()}</div>
                 </div>
-
                 <div class="dairy-card p-5">
-                    <div class="flex justify-between items-start">
-                        <div>
-                            <p class="text-xs font-semibold text-slate-500 uppercase tracking-wider">Today's Amount</p>
-                            <h3 class="text-2xl font-bold text-emerald-600 mt-1">₹${totalAmount.toLocaleString()}</h3>
-                        </div>
-                        <div class="p-3 bg-teal-50 text-teal-600 rounded-xl text-xl">💰</div>
-                    </div>
-                    <div class="mt-3 flex items-center text-xs text-slate-600 font-medium">
-                        <span>Estimated Payable Amount</span>
-                    </div>
+                    <div class="text-xs font-semibold text-slate-500 uppercase">Online Paid (UPI/Bank)</div>
+                    <div class="text-2xl font-bold text-sky-600 mt-1">₹${totalOnline.toLocaleString()}</div>
                 </div>
             </div>
 
-            <!-- Charts Section -->
-            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                <div class="dairy-card p-6">
-                    <div class="flex justify-between items-center mb-4">
-                        <h3 class="font-bold text-slate-900 text-base">Morning vs Evening Collection (Last 7 Days)</h3>
-                        <span class="text-xs text-slate-500 font-medium">Litres</span>
-                    </div>
-                    <div class="h-64 flex items-center justify-center bg-slate-50 rounded-xl border border-dashed border-slate-200">
-                        <canvas id="collectionChart" class="max-h-56"></canvas>
-                    </div>
-                </div>
-
-                <div class="dairy-card p-6">
-                    <div class="flex justify-between items-center mb-4">
-                        <h3 class="font-bold text-slate-900 text-base">FAT & SNF Quality Trends</h3>
-                        <span class="text-xs text-slate-500 font-medium">Percentage (%)</span>
-                    </div>
-                    <div class="h-64 flex items-center justify-center bg-slate-50 rounded-xl border border-dashed border-slate-200">
-                        <canvas id="qualityChart" class="max-h-56"></canvas>
-                    </div>
+            <!-- Feed Products Price List Reference -->
+            <div class="dairy-card p-6">
+                <h3 class="font-bold text-slate-900 text-base mb-3">🏷️ Available Cattle Feed Varieties & Pricing List</h3>
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
+                    ${DEFAULT_STATE.feedProducts.map(p => `
+                        <div class="bg-slate-50 p-3 rounded-xl border flex justify-between items-center text-xs">
+                            <div>
+                                <div class="font-bold text-slate-900">${p.name}</div>
+                                <div class="text-[10px] text-emerald-700 font-medium">${p.category}</div>
+                            </div>
+                            <div class="text-right">
+                                <div class="font-extrabold text-emerald-600 text-sm">₹${p.price}</div>
+                                <div class="text-[10px] text-slate-500">per bag</div>
+                            </div>
+                        </div>
+                    `).join('')}
                 </div>
             </div>
 
-            <!-- Today's Collection Table -->
+            <!-- Feed Sales Ledger Table -->
             <div class="dairy-card overflow-hidden">
-                <div class="p-6 border-b border-slate-200 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-                    <div>
-                        <h3 class="font-bold text-slate-900 text-lg">Today's Collection Records</h3>
-                        <p class="text-xs text-slate-500">Real-time milk entries for May 20, 2024</p>
-                    </div>
-                    <div class="flex items-center gap-2">
-                        <input type="text" id="dash-search" placeholder="Search farmer..." class="px-3 py-2 border border-slate-200 rounded-xl text-xs focus:ring-2 focus:ring-emerald-500 bg-slate-50" onkeyup="filterDashTable()">
-                        <button onclick="setView('milk_entry')" class="bg-emerald-600 hover:bg-emerald-700 text-white px-3 py-2 rounded-xl text-xs font-semibold transition">
-                            + Add Entry
-                        </button>
-                    </div>
+                <div class="p-4 border-b flex flex-col sm:flex-row justify-between items-center gap-4">
+                    <h3 class="font-bold text-slate-900 text-base">Feed Sales & Notebook Credit Ledger (${sales.length} transactions)</h3>
+                    <input type="text" id="feed-search" placeholder="Search farmer or feed..." onkeyup="filterFeedTable()" class="px-3 py-2 border rounded-xl text-xs bg-slate-50 w-full sm:w-64">
                 </div>
                 <div class="overflow-x-auto">
                     <table class="w-full text-left border-collapse text-xs">
-                        <thead>
-                            <tr class="bg-slate-100/70 text-slate-700 uppercase font-semibold text-[11px] border-b border-slate-200">
-                                <th class="p-4">Farmer ID</th>
+                        <thead class="bg-slate-100/70 text-slate-700 uppercase font-semibold text-[11px]">
+                            <tr>
+                                <th class="p-4">Tx ID & Date</th>
                                 <th class="p-4">Farmer Name</th>
-                                <th class="p-4">Shift</th>
-                                <th class="p-4">Milk Type</th>
-                                <th class="p-4">Litres</th>
-                                <th class="p-4">FAT</th>
-                                <th class="p-4">SNF</th>
-                                <th class="p-4">Rate/L</th>
-                                <th class="p-4">Amount</th>
-                                <th class="p-4">Time</th>
-                                <th class="p-4">Status</th>
+                                <th class="p-4">Feed Variety</th>
+                                <th class="p-4">Bags</th>
+                                <th class="p-4">Total Amount</th>
+                                <th class="p-4">Paid Amount</th>
+                                <th class="p-4">Payment Mode</th>
+                                <th class="p-4 font-bold text-amber-700">Balance Due</th>
+                                ${!isFarmer ? '<th class="p-4 text-right">Action</th>' : ''}
                             </tr>
                         </thead>
-                        <tbody id="dash-table-body" class="divide-y divide-slate-100 text-slate-700 font-medium">
-                            ${todayCols.map(c => `
-                                <tr class="hover:bg-slate-50/80 transition">
-                                    <td class="p-4 font-semibold text-emerald-700">${c.farmerId}</td>
-                                    <td class="p-4 font-bold text-slate-900">${c.farmerName}</td>
-                                    <td class="p-4"><span class="px-2 py-1 rounded-md text-[10px] font-semibold ${c.shift === 'Morning' ? 'bg-amber-100 text-amber-800' : 'bg-indigo-100 text-indigo-800'}">${c.shift}</span></td>
-                                    <td class="p-4">${c.milkType}</td>
-                                    <td class="p-4 font-semibold text-slate-900">${c.litres} L</td>
-                                    <td class="p-4">${c.fat}%</td>
-                                    <td class="p-4">${c.snf}%</td>
-                                    <td class="p-4">₹${c.rate}</td>
-                                    <td class="p-4 font-bold text-emerald-600">₹${c.amount.toFixed(2)}</td>
-                                    <td class="p-4 text-slate-500">${c.time}</td>
-                                    <td class="p-4"><span class="px-2 py-0.5 bg-emerald-100 text-emerald-800 rounded text-[10px] font-semibold">${c.status}</span></td>
-                                </tr>
-                            `).join('')}
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-        </div>
-    `;
-}
-
-setTimeout(() => {
-    initCharts();
-}, 100);
-
-function initCharts() {
-    const ctx1 = document.getElementById('collectionChart');
-    if (ctx1 && window.Chart) {
-        new Chart(ctx1, {
-            type: 'bar',
-            data: {
-                labels: ['May 14', 'May 15', 'May 16', 'May 17', 'May 18', 'May 19', 'May 20'],
-                datasets: [
-                    { label: 'Morning (L)', data: [710, 725, 730, 715, 740, 735, 742], backgroundColor: '#10b981', borderRadius: 6 },
-                    { label: 'Evening (L)', data: [510, 520, 535, 525, 530, 540, 542], backgroundColor: '#0284c7', borderRadius: 6 }
-                ]
-            },
-            options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'bottom' } } }
-        });
-    }
-
-    const ctx2 = document.getElementById('qualityChart');
-    if (ctx2 && window.Chart) {
-        new Chart(ctx2, {
-            type: 'line',
-            data: {
-                labels: ['May 14', 'May 15', 'May 16', 'May 17', 'May 18', 'May 19', 'May 20'],
-                datasets: [
-                    { label: 'Average FAT (%)', data: [4.1, 4.2, 4.1, 4.3, 4.2, 4.2, 4.2], borderColor: '#f59e0b', backgroundColor: '#f59e0b', tension: 0.3 },
-                    { label: 'Average SNF (%)', data: [8.4, 8.5, 8.5, 8.6, 8.5, 8.5, 8.5], borderColor: '#6366f1', backgroundColor: '#6366f1', tension: 0.3 }
-                ]
-            },
-            options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'bottom' } } }
-        });
-    }
-}
-
-// ==========================================
-// FARMER MANAGEMENT PAGE
-// ==========================================
-function renderFarmersPage() {
-    return `
-        <div class="space-y-6">
-            <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 bg-white p-6 rounded-2xl shadow-sm border border-slate-200">
-                <div>
-                    <h2 class="text-xl font-bold text-slate-900">Farmer Management (விவசாயிகள் மேலாண்மை)</h2>
-                    <p class="text-xs text-slate-500 mt-0.5">Manage registered farmers, profiles, animal details and bank accounts.</p>
-                </div>
-                <button onclick="openAddFarmerModal()" class="bg-emerald-600 hover:bg-emerald-700 text-white px-4 py-2.5 rounded-xl text-sm font-semibold transition shadow flex items-center gap-2">
-                    <span>+</span> Add New Farmer
-                </button>
-            </div>
-
-            <!-- Filters & Search -->
-            <div class="dairy-card p-4 flex flex-col sm:flex-row justify-between gap-4">
-                <div class="flex items-center gap-2 flex-1">
-                    <input type="text" id="farmer-search" placeholder="Search by name, ID or mobile..." onkeyup="filterFarmersTable()" class="px-4 py-2 border border-slate-200 rounded-xl text-sm w-full max-w-md focus:ring-2 focus:ring-emerald-500 bg-slate-50">
-                </div>
-                <div class="flex items-center gap-2">
-                    <select id="farmer-status-filter" onchange="filterFarmersTable()" class="px-4 py-2 border border-slate-200 rounded-xl text-sm bg-slate-50 font-medium">
-                        <option value="All">All Status</option>
-                        <option value="Active">Active</option>
-                        <option value="Inactive">Inactive</option>
-                    </select>
-                </div>
-            </div>
-
-            <!-- Farmers Table -->
-            <div class="dairy-card overflow-hidden">
-                <div class="overflow-x-auto">
-                    <table class="w-full text-left border-collapse text-xs">
-                        <thead>
-                            <tr class="bg-slate-100/70 text-slate-700 uppercase font-semibold text-[11px] border-b border-slate-200">
-                                <th class="p-4">Farmer ID</th>
-                                <th class="p-4">Name</th>
-                                <th class="p-4">Mobile</th>
-                                <th class="p-4">Village</th>
-                                <th class="p-4">Animal Type</th>
-                                <th class="p-4">Cows / Buff</th>
-                                <th class="p-4">Bank / UPI</th>
-                                <th class="p-4">Status</th>
-                                <th class="p-4 text-right">Actions</th>
-                            </tr>
-                        </thead>
-                        <tbody id="farmers-table-body" class="divide-y divide-slate-100 text-slate-700 font-medium">
-                            ${DEFAULT_STATE.farmers.map(f => `
-                                <tr class="hover:bg-slate-50/80 transition">
-                                    <td class="p-4 font-bold text-emerald-700">${f.id}</td>
-                                    <td class="p-4 font-bold text-slate-900">${f.name}</td>
-                                    <td class="p-4">${f.phone}</td>
-                                    <td class="p-4">${f.village}</td>
-                                    <td class="p-4"><span class="px-2 py-0.5 bg-slate-100 rounded text-slate-800 font-semibold">${f.animalType}</span></td>
-                                    <td class="p-4">🐄 ${f.cows} | 🐃 ${f.buffaloes}</td>
-                                    <td class="p-4 text-slate-500 text-[11px]">${f.bank}</td>
-                                    <td class="p-4"><span class="px-2 py-0.5 bg-emerald-100 text-emerald-800 rounded text-[10px] font-semibold">${f.status}</span></td>
-                                    <td class="p-4 text-right space-x-2">
-                                        <button onclick="viewFarmerProfile('${f.id}')" class="bg-sky-50 hover:bg-sky-100 text-sky-700 px-3 py-1.5 rounded-lg text-xs font-semibold transition">View Profile</button>
-                                        <button onclick="deleteFarmer('${f.id}')" class="bg-rose-50 hover:bg-rose-100 text-rose-600 px-2 py-1.5 rounded-lg text-xs font-semibold transition">Delete</button>
-                                    </td>
+                        <tbody id="feed-table-body" class="divide-y text-slate-700 font-medium">
+                            ${sales.map(s => `
+                                <tr class="hover:bg-slate-50">
+                                    <td class="p-4 font-bold text-emerald-700">${s.id}<br><span class="text-[10px] text-slate-400 font-normal">${s.date}</span></td>
+                                    <td class="p-4 font-bold text-slate-900">${s.farmerName} (${s.farmerId})</td>
+                                    <td class="p-4">${s.feedName}</td>
+                                    <td class="p-4 font-bold">${s.bags} bags</td>
+                                    <td class="p-4 font-semibold text-slate-900">₹${s.totalAmount}</td>
+                                    <td class="p-4 font-semibold text-emerald-600">₹${s.paidAmount}</td>
+                                    <td class="p-4"><span class="px-2 py-0.5 rounded text-[10px] font-bold ${s.paymentMode.includes('Cash') ? 'bg-amber-100 text-amber-800' : s.paymentMode.includes('Online') ? 'bg-sky-100 text-sky-800' : 'bg-rose-100 text-rose-800'}">${s.paymentMode}</span></td>
+                                    <td class="p-4 font-extrabold ${s.balanceDue > 0 ? 'text-rose-600' : 'text-emerald-600'}">₹${s.balanceDue}</td>
+                                    ${!isFarmer ? `
+                                    <td class="p-4 text-right">
+                                        ${s.balanceDue > 0 ? `<button onclick="openPayFeedModal('${s.id}')" class="bg-emerald-600 hover:bg-emerald-700 text-white px-3 py-1 rounded-lg text-xs font-semibold">Clear Due</button>` : '<span class="text-emerald-600 font-bold">Settled ✓</span>'}
+                                    </td>` : ''}
                                 </tr>
                             `).join('')}
                         </tbody>
@@ -755,1051 +579,196 @@ function renderFarmersPage() {
             </div>
         </div>
 
-        <!-- Add Farmer Modal Container -->
-        <div id="farmer-modal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm hidden items-center justify-center p-4 z-50">
+        <!-- New Feed Sale Modal -->
+        <div id="feed-sale-modal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm hidden items-center justify-center p-4 z-50">
             <div class="bg-white rounded-2xl max-w-lg w-full p-6 shadow-2xl max-h-[90vh] overflow-y-auto">
                 <div class="flex justify-between items-center mb-4 border-b pb-3">
-                    <h3 class="text-lg font-bold text-slate-900">Add New Farmer (புதிய விவசாயி சேர்ப்பு)</h3>
-                    <button onclick="closeAddFarmerModal()" class="text-slate-400 hover:text-slate-700 font-bold text-xl">✕</button>
+                    <h3 class="text-lg font-bold text-slate-900">New Feed Sale & Credit Entry (தீவன விற்பனை பதிவு)</h3>
+                    <button onclick="closeFeedSaleModal()" class="text-slate-400 hover:text-slate-700 font-bold text-xl">✕</button>
                 </div>
-                <form id="add-farmer-form" onsubmit="submitNewFarmer(event)" class="space-y-4 text-xs">
-                    <div class="grid grid-cols-2 gap-4">
-                        <div>
-                            <label class="block font-semibold text-slate-700 mb-1">Farmer ID</label>
-                            <input type="text" id="new-f-id" value="F0${DEFAULT_STATE.farmers.length + 1}" required class="w-full px-3 py-2 border rounded-xl bg-slate-50">
-                        </div>
-                        <div>
-                            <label class="block font-semibold text-slate-700 mb-1">Farmer Name</label>
-                            <input type="text" id="new-f-name" required class="w-full px-3 py-2 border rounded-xl bg-slate-50" placeholder="Full Name">
-                        </div>
-                    </div>
-                    <div class="grid grid-cols-2 gap-4">
-                        <div>
-                            <label class="block font-semibold text-slate-700 mb-1">Mobile Number</label>
-                            <input type="text" id="new-f-phone" required class="w-full px-3 py-2 border rounded-xl bg-slate-50" placeholder="9842123456">
-                        </div>
-                        <div>
-                            <label class="block font-semibold text-slate-700 mb-1">Village</label>
-                            <input type="text" id="new-f-village" required class="w-full px-3 py-2 border rounded-xl bg-slate-50" placeholder="Thadikombu">
-                        </div>
-                    </div>
+                <form id="feed-sale-form" onsubmit="submitFeedSale(event)" class="space-y-4 text-xs">
                     <div>
-                        <label class="block font-semibold text-slate-700 mb-1">Address</label>
-                        <input type="text" id="new-f-address" class="w-full px-3 py-2 border rounded-xl bg-slate-50" placeholder="Street Name / Door No">
+                        <label class="block font-semibold text-slate-700 mb-1">Select Farmer / Customer</label>
+                        <select id="fs-farmer-id" required class="w-full px-3 py-2.5 border rounded-xl bg-slate-50 font-medium">
+                            ${DEFAULT_STATE.farmers.map(f => `<option value="${f.id}">${f.id} - ${f.name} (${f.village})</option>`).join('')}
+                        </select>
                     </div>
-                    <div class="grid grid-cols-3 gap-4">
+
+                    <div class="grid grid-cols-2 gap-4">
                         <div>
-                            <label class="block font-semibold text-slate-700 mb-1">Animal Type</label>
-                            <select id="new-f-animal" class="w-full px-3 py-2 border rounded-xl bg-slate-50">
-                                <option value="Cow">Cow</option>
-                                <option value="Buffalo">Buffalo</option>
-                                <option value="Mixed">Mixed</option>
+                            <label class="block font-semibold text-slate-700 mb-1">Select Feed Variety</label>
+                            <select id="fs-feed-id" onchange="updateFeedSaleCalc()" required class="w-full px-3 py-2.5 border rounded-xl bg-slate-50 font-medium">
+                                ${DEFAULT_STATE.feedProducts.map(p => `<option value="${p.id}" data-price="${p.price}">${p.name} (₹${p.price})</option>`).join('')}
                             </select>
                         </div>
                         <div>
-                            <label class="block font-semibold text-slate-700 mb-1">No. of Cows</label>
-                            <input type="number" id="new-f-cows" value="1" class="w-full px-3 py-2 border rounded-xl bg-slate-50">
-                        </div>
-                        <div>
-                            <label class="block font-semibold text-slate-700 mb-1">No. of Buffaloes</label>
-                            <input type="number" id="new-f-buff" value="0" class="w-full px-3 py-2 border rounded-xl bg-slate-50">
+                            <label class="block font-semibold text-slate-700 mb-1">Number of Bags</label>
+                            <input type="number" id="fs-bags" value="1" min="1" required oninput="updateFeedSaleCalc()" class="w-full px-3 py-2.5 border rounded-xl bg-slate-50 font-bold">
                         </div>
                     </div>
+
+                    <div class="grid grid-cols-2 gap-4 bg-slate-50 p-4 rounded-xl border">
+                        <div>
+                            <span class="text-slate-500 font-medium">Total Feed Bill:</span>
+                            <div class="text-xl font-bold text-slate-900 mt-0.5">₹<span id="fs-display-total">1450</span></div>
+                        </div>
+                        <div>
+                            <label class="block font-semibold text-slate-700 mb-1">Amount Paid Now (₹)</label>
+                            <input type="number" id="fs-paid" value="0" min="0" required oninput="updateFeedSaleCalc()" class="w-full px-2.5 py-2 border rounded-xl bg-white font-bold text-emerald-600">
+                        </div>
+                    </div>
+
                     <div class="grid grid-cols-2 gap-4">
                         <div>
-                            <label class="block font-semibold text-slate-700 mb-1">Bank Details / Account</label>
-                            <input type="text" id="new-f-bank" class="w-full px-3 py-2 border rounded-xl bg-slate-50" placeholder="State Bank - ACC">
+                            <label class="block font-semibold text-slate-700 mb-1">Payment Mode</label>
+                            <select id="fs-mode" class="w-full px-3 py-2.5 border rounded-xl bg-slate-50 font-medium">
+                                <option value="Cash (Hand)">Cash (In Hand)</option>
+                                <option value="Online UPI">Online Pay (UPI / Bank)</option>
+                                <option value="Partial Payment">Partial Payment (Credit Balance)</option>
+                                <option value="Credit / Pending">Full Credit (Pending Due)</option>
+                            </select>
                         </div>
                         <div>
-                            <label class="block font-semibold text-slate-700 mb-1">UPI ID</label>
-                            <input type="text" id="new-f-upi" class="w-full px-3 py-2 border rounded-xl bg-slate-50" placeholder="name@sbi">
+                            <label class="block font-semibold text-slate-700 mb-1">Remaining Balance Due (Added to Credit)</label>
+                            <div class="text-lg font-extrabold text-rose-600 mt-1.5">₹<span id="fs-display-balance">1450</span></div>
                         </div>
                     </div>
+
                     <div class="flex justify-end gap-2 pt-3 border-t">
-                        <button type="button" onclick="closeAddFarmerModal()" class="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl font-semibold">Cancel</button>
-                        <button type="submit" class="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl font-semibold shadow">Save Farmer</button>
+                        <button type="button" onclick="closeFeedSaleModal()" class="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl font-semibold">Cancel</button>
+                        <button type="submit" class="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl font-semibold shadow">Save Feed Sale Entry</button>
                     </div>
                 </form>
             </div>
         </div>
 
-        <!-- Farmer Profile Modal Container -->
-        <div id="profile-modal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm hidden items-center justify-center p-4 z-50">
-            <div id="profile-modal-content" class="bg-white rounded-2xl max-w-3xl w-full p-6 shadow-2xl max-h-[90vh] overflow-y-auto">
-                <!-- Dynamically populated -->
+        <!-- Clear Due / Pay Modal -->
+        <div id="pay-feed-modal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm hidden items-center justify-center p-4 z-50">
+            <div class="bg-white rounded-2xl max-w-sm w-full p-6 shadow-2xl">
+                <div class="flex justify-between items-center mb-4 border-b pb-3">
+                    <h3 class="text-lg font-bold text-slate-900">Clear Feed Credit Due</h3>
+                    <button onclick="closePayFeedModal()" class="text-slate-400 hover:text-slate-700 font-bold text-xl">✕</button>
+                </div>
+                <input type="hidden" id="pay-feed-tx-id">
+                <div class="space-y-4 text-xs">
+                    <div>
+                        <label class="block font-semibold text-slate-700 mb-1">Payment Method</label>
+                        <select id="pay-feed-method" class="w-full px-3 py-2.5 border rounded-xl bg-slate-50">
+                            <option value="Cash (Hand)">Cash (In Hand)</option>
+                            <option value="Online UPI">Online Pay (UPI / Bank)</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block font-semibold text-slate-700 mb-1">Amount to Pay (₹)</label>
+                        <input type="number" id="pay-feed-amount" class="w-full px-3 py-2.5 border rounded-xl bg-slate-50 font-bold text-emerald-600">
+                    </div>
+                    <button onclick="confirmClearFeedDue()" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white py-2.5 rounded-xl font-semibold shadow">Confirm Payment</button>
+                </div>
             </div>
         </div>
     `;
 }
 
-function openAddFarmerModal() {
-    document.getElementById('farmer-modal').classList.remove('hidden');
-    document.getElementById('farmer-modal').classList.add('flex');
+function openFeedSaleModal() {
+    document.getElementById('feed-sale-modal').classList.remove('hidden');
+    document.getElementById('feed-sale-modal').classList.add('flex');
+    updateFeedSaleCalc();
 }
 
-function closeAddFarmerModal() {
-    document.getElementById('farmer-modal').classList.add('hidden');
-    document.getElementById('farmer-modal').classList.remove('flex');
+function closeFeedSaleModal() {
+    document.getElementById('feed-sale-modal').classList.add('hidden');
+    document.getElementById('feed-sale-modal').classList.remove('flex');
 }
 
-function submitNewFarmer(e) {
+function updateFeedSaleCalc() {
+    const feedSelect = document.getElementById('fs-feed-id');
+    const bagsInput = document.getElementById('fs-bags');
+    const paidInput = document.getElementById('fs-paid');
+
+    if (!feedSelect || !bagsInput || !paidInput) return;
+
+    const selectedOption = feedSelect.options[feedSelect.selectedIndex];
+    const price = parseFloat(selectedOption.getAttribute('data-price')) || 1450;
+    const bags = parseInt(bagsInput.value) || 1;
+    const total = price * bags;
+
+    if (document.activeElement !== paidInput) {
+        paidInput.value = 0;
+    }
+    const paid = parseFloat(paidInput.value) || 0;
+    const balance = Math.max(0, total - paid);
+
+    document.getElementById('fs-display-total').innerText = total.toFixed(2);
+    document.getElementById('fs-display-balance').innerText = balance.toFixed(2);
+}
+
+function submitFeedSale(e) {
     e.preventDefault();
-    const newFarmer = {
-        id: document.getElementById('new-f-id').value,
-        name: document.getElementById('new-f-name').value,
-        phone: document.getElementById('new-f-phone').value,
-        village: document.getElementById('new-f-village').value,
-        address: document.getElementById('new-f-address').value,
-        animalType: document.getElementById('new-f-animal').value,
-        cows: parseInt(document.getElementById('new-f-cows').value) || 0,
-        buffaloes: parseInt(document.getElementById('new-f-buff').value) || 0,
-        regDate: new Date().toISOString().split('T')[0],
-        bank: document.getElementById('new-f-bank').value || 'SBI - 123456',
-        upi: document.getElementById('new-f-upi').value || 'farmer@upi',
-        status: 'Active'
+    const farmerId = document.getElementById('fs-farmer-id').value;
+    const farmer = DEFAULT_STATE.farmers.find(f => f.id === farmerId);
+    const feedSelect = document.getElementById('fs-feed-id');
+    const feedName = feedSelect.options[feedSelect.selectedIndex].text.split(' (')[0];
+    const unitPrice = parseFloat(feedSelect.options[feedSelect.selectedIndex].getAttribute('data-price'));
+    const bags = parseInt(document.getElementById('fs-bags').value);
+    const totalAmount = unitPrice * bags;
+    const paidAmount = parseFloat(document.getElementById('fs-paid').value) || 0;
+    const paymentMode = document.getElementById('fs-mode').value;
+    const balanceDue = Math.max(0, totalAmount - paidAmount);
+
+    const newSale = {
+        id: "FS-" + (100 + DEFAULT_STATE.feedSales.length + 1),
+        farmerId,
+        farmerName: farmer ? farmer.name : "Unknown",
+        date: new Date().toISOString().split('T')[0],
+        feedName,
+        bags,
+        unitPrice,
+        totalAmount,
+        paidAmount,
+        paymentMode: paidAmount === totalAmount ? paymentMode : (paidAmount > 0 ? "Partial Payment" : "Credit / Pending"),
+        balanceDue
     };
 
-    DEFAULT_STATE.farmers.push(newFarmer);
+    DEFAULT_STATE.feedSales.unshift(newSale);
     saveState();
-    closeAddFarmerModal();
+    closeFeedSaleModal();
     renderApp();
 }
 
-function deleteFarmer(id) {
-    if (confirm(`Are you sure you want to delete farmer ${id}?`)) {
-        DEFAULT_STATE.farmers = DEFAULT_STATE.farmers.filter(f => f.id !== id);
+function openPayFeedModal(txId) {
+    const tx = DEFAULT_STATE.feedSales.find(s => s.id === txId);
+    if (!tx) return;
+    document.getElementById('pay-feed-tx-id').value = txId;
+    document.getElementById('pay-feed-amount').value = tx.balanceDue;
+    document.getElementById('pay-feed-modal').classList.remove('hidden');
+    document.getElementById('pay-feed-modal').classList.add('flex');
+}
+
+function closePayFeedModal() {
+    document.getElementById('pay-feed-modal').classList.add('hidden');
+    document.getElementById('pay-feed-modal').classList.remove('flex');
+}
+
+function confirmClearFeedDue() {
+    const txId = document.getElementById('pay-feed-tx-id').value;
+    const payAmount = parseFloat(document.getElementById('pay-feed-amount').value) || 0;
+    const method = document.getElementById('pay-feed-method').value;
+
+    const tx = DEFAULT_STATE.feedSales.find(s => s.id === txId);
+    if (tx) {
+        tx.paidAmount += payAmount;
+        tx.balanceDue = Math.max(0, tx.totalAmount - tx.paidAmount);
+        tx.paymentMode = tx.balanceDue === 0 ? `${method} (Settled)` : "Partial Payment";
         saveState();
+        closePayFeedModal();
         renderApp();
     }
 }
 
-function viewFarmerProfile(id) {
-    const f = DEFAULT_STATE.farmers.find(item => item.id === id);
-    if (!f) return;
-
-    const fCols = DEFAULT_STATE.collections.filter(c => c.farmerId === id);
-    const totalMilk = fCols.reduce((acc, c) => acc + c.litres, 0);
-    const totalEarnings = fCols.reduce((acc, c) => acc + c.amount, 0);
-    const avgFat = fCols.length > 0 ? (fCols.reduce((acc, c) => acc + c.fat, 0) / fCols.length).toFixed(1) : "4.0";
-    const avgSnf = fCols.length > 0 ? (fCols.reduce((acc, c) => acc + c.snf, 0) / fCols.length).toFixed(1) : "8.5";
-
-    const modal = document.getElementById('profile-modal');
-    const content = document.getElementById('profile-modal-content');
-
-    content.innerHTML = `
-        <div class="flex justify-between items-center mb-6 border-b pb-4">
-            <div>
-                <span class="text-xs bg-emerald-100 text-emerald-800 px-2 py-0.5 rounded font-bold">${f.id}</span>
-                <h3 class="text-xl font-bold text-slate-900 mt-1">${f.name}</h3>
-                <p class="text-xs text-slate-500">Village: ${f.village} | Mobile: ${f.phone}</p>
-            </div>
-            <button onclick="closeProfileModal()" class="text-slate-400 hover:text-slate-700 font-bold text-xl">✕</button>
-        </div>
-
-        <div class="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-6">
-            <div class="bg-slate-50 p-3 rounded-xl border">
-                <div class="text-[11px] text-slate-500 font-semibold">Total Supplied</div>
-                <div class="text-lg font-bold text-slate-900 mt-1">${totalMilk} L</div>
-            </div>
-            <div class="bg-slate-50 p-3 rounded-xl border">
-                <div class="text-[11px] text-slate-500 font-semibold">Total Earnings</div>
-                <div class="text-lg font-bold text-emerald-600 mt-1">₹${totalEarnings.toFixed(2)}</div>
-            </div>
-            <div class="bg-slate-50 p-3 rounded-xl border">
-                <div class="text-[11px] text-slate-500 font-semibold">Average FAT</div>
-                <div class="text-lg font-bold text-slate-900 mt-1">${avgFat}%</div>
-            </div>
-            <div class="bg-slate-50 p-3 rounded-xl border">
-                <div class="text-[11px] text-slate-500 font-semibold">Average SNF</div>
-                <div class="text-lg font-bold text-slate-900 mt-1">${avgSnf}%</div>
-            </div>
-        </div>
-
-        <div class="space-y-4 text-xs">
-            <div class="bg-emerald-50 p-4 rounded-xl border border-emerald-100 flex justify-between items-center">
-                <div>
-                    <span class="font-bold text-emerald-900 text-sm">Pending Payment: ₹1,500.00</span>
-                    <p class="text-emerald-700 mt-0.5">Ready for weekly settlement cycle</p>
-                </div>
-                <button onclick="alert('Payment disbursement initiated!')" class="bg-emerald-600 hover:bg-emerald-700 text-white px-4 py-2 rounded-lg font-semibold shadow">Settle Payment</button>
-            </div>
-
-            <div>
-                <h4 class="font-bold text-slate-900 text-sm mb-2">Collection History (${fCols.length} records)</h4>
-                <div class="overflow-x-auto max-h-48 border rounded-xl">
-                    <table class="w-full text-left border-collapse text-xs">
-                        <thead class="bg-slate-100 sticky top-0">
-                            <tr>
-                                <th class="p-3">Date</th>
-                                <th class="p-3">Shift</th>
-                                <th class="p-3">Milk Type</th>
-                                <th class="p-3">Litres</th>
-                                <th class="p-3">FAT/SNF</th>
-                                <th class="p-3">Amount</th>
-                            </tr>
-                        </thead>
-                        <tbody class="divide-y">
-                            ${fCols.length === 0 ? '<tr><td colspan="6" class="p-4 text-center text-slate-500">No collection records found.</td></tr>' : fCols.map(c => `
-                                <tr>
-                                    <td class="p-3">${c.date}</td>
-                                    <td class="p-3">${c.shift}</td>
-                                    <td class="p-3">${c.milkType}</td>
-                                    <td class="p-3 font-semibold">${c.litres} L</td>
-                                    <td class="p-3">${c.fat}% / ${c.snf}%</td>
-                                    <td class="p-3 font-bold text-emerald-600">₹${c.amount}</td>
-                                </tr>
-                            `).join('')}
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-        </div>
-
-        <div class="mt-6 flex justify-end gap-2 border-t pt-4">
-            <button onclick="closeProfileModal()" class="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl font-semibold">Close</button>
-            <button onclick="downloadStatement('${f.id}')" class="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl font-semibold">Download Statement</button>
-        </div>
-    `;
-
-    modal.classList.remove('hidden');
-    modal.classList.add('flex');
-}
-
-function closeProfileModal() {
-    document.getElementById('profile-modal').classList.add('hidden');
-    document.getElementById('profile-modal').classList.remove('flex');
-}
-
-function filterFarmersTable() {
-    const query = document.getElementById('farmer-search').value.toLowerCase();
-    const statusFilter = document.getElementById('farmer-status-filter').value;
-    const rows = document.querySelectorAll('#farmers-table-body tr');
-
-    rows.forEach(row => {
-        const text = row.innerText.toLowerCase();
-        const matchesQuery = text.includes(query);
-        const matchesStatus = statusFilter === 'All' || text.includes(statusFilter.toLowerCase());
-        row.style.display = matchesQuery && matchesStatus ? '' : 'none';
-    });
-}
-
-// ==========================================
-// FAST MILK ENTRY INTERFACE
-// ==========================================
-function renderMilkEntryPage() {
-    return `
-        <div class="max-w-3xl mx-auto space-y-6">
-            <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200">
-                <div class="flex justify-between items-center mb-4 border-b pb-3">
-                    <div>
-                        <h2 class="text-xl font-bold text-slate-900">Fast Milk Collection Entry (பால் பதிவு)</h2>
-                        <p class="text-xs text-slate-500">Record morning or evening milk collection with instant rate & amount calculation.</p>
-                    </div>
-                    <span class="text-xs bg-emerald-100 text-emerald-800 px-3 py-1 rounded-full font-bold">Operator Mode</span>
-                </div>
-
-                <form id="milk-entry-form" onsubmit="submitMilkCollection(event)" class="space-y-4 text-xs">
-                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                        <div>
-                            <label class="block font-semibold text-slate-700 mb-1">Select Farmer</label>
-                            <select id="entry-farmer-id" required class="w-full px-3 py-2.5 border rounded-xl bg-slate-50 font-medium text-slate-800">
-                                ${DEFAULT_STATE.farmers.map(f => `<option value="${f.id}">${f.id} - ${f.name} (${f.village})</option>`).join('')}
-                            </select>
-                        </div>
-                        <div>
-                            <label class="block font-semibold text-slate-700 mb-1">Shift</label>
-                            <select id="entry-shift" class="w-full px-3 py-2.5 border rounded-xl bg-slate-50 font-medium text-slate-800">
-                                <option value="Morning">Morning (காலை)</option>
-                                <option value="Evening">Evening (மாலை)</option>
-                            </select>
-                        </div>
-                    </div>
-
-                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                        <div>
-                            <label class="block font-semibold text-slate-700 mb-1">Milk Type</label>
-                            <select id="entry-milk-type" onchange="calculateMilkRate()" class="w-full px-3 py-2.5 border rounded-xl bg-slate-50 font-medium text-slate-800">
-                                <option value="Cow">Cow Milk (பசு பால்)</option>
-                                <option value="Buffalo">Buffalo Milk (எருமை பால்)</option>
-                                <option value="Mixed">Mixed Milk (கலப்பு பால்)</option>
-                            </select>
-                        </div>
-                        <div>
-                            <label class="block font-semibold text-slate-700 mb-1">Quantity (Litres)</label>
-                            <input type="number" step="0.1" id="entry-litres" value="10.0" required oninput="calculateMilkRate()" class="w-full px-3 py-2.5 border rounded-xl bg-slate-50 font-bold text-slate-900">
-                        </div>
-                        <div>
-                            <label class="block font-semibold text-slate-700 mb-1">Collection Date</label>
-                            <input type="date" id="entry-date" value="2024-05-20" required class="w-full px-3 py-2.5 border rounded-xl bg-slate-50 font-medium text-slate-800">
-                        </div>
-                    </div>
-
-                    <div class="grid grid-cols-3 gap-4 bg-slate-50 p-4 rounded-xl border">
-                        <div>
-                            <label class="block font-semibold text-slate-700 mb-1">FAT %</label>
-                            <input type="number" step="0.1" id="entry-fat" value="4.2" required oninput="calculateMilkRate()" class="w-full px-2.5 py-2 border rounded-xl bg-white font-bold">
-                        </div>
-                        <div>
-                            <label class="block font-semibold text-slate-700 mb-1">SNF %</label>
-                            <input type="number" step="0.1" id="entry-snf" value="8.5" required oninput="calculateMilkRate()" class="w-full px-2.5 py-2 border rounded-xl bg-white font-bold">
-                        </div>
-                        <div>
-                            <label class="block font-semibold text-slate-700 mb-1">CLR (Lacto)</label>
-                            <input type="number" step="0.1" id="entry-clr" value="28.5" class="w-full px-2.5 py-2 border rounded-xl bg-white font-bold">
-                        </div>
-                    </div>
-
-                    <!-- Calculated Results Box -->
-                    <div class="bg-emerald-50 border border-emerald-200 rounded-xl p-4 flex flex-col sm:flex-row justify-between items-center gap-4">
-                        <div>
-                            <div class="text-xs text-emerald-800 font-semibold">Calculated Rate & Total Amount</div>
-                            <div class="text-2xl font-extrabold text-emerald-700 mt-1">₹<span id="display-total-amount">440.00</span> <span class="text-xs font-normal text-slate-600">(Rate: ₹<span id="display-rate">44.0</span>/L)</span></div>
-                        </div>
-                        <div class="text-right">
-                            <span class="text-[11px] bg-emerald-600 text-white px-3 py-1 rounded-full font-bold">Estimated nutritional value: ~68 kcal / 100ml</span>
-                        </div>
-                    </div>
-
-                    <div class="flex justify-end gap-3 pt-4 border-t">
-                        <button type="button" onclick="setView('admin_dashboard')" class="px-5 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl font-semibold">Cancel</button>
-                        <button type="submit" class="px-6 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl font-bold shadow-lg shadow-emerald-600/30">Submit Collection & Print Receipt</button>
-                    </div>
-                </form>
-            </div>
-        </div>
-    `;
-}
-
-function calculateMilkRate() {
-    const milkType = document.getElementById('entry-milk-type').value;
-    const fat = parseFloat(document.getElementById('entry-fat').value) || 4.0;
-    const litres = parseFloat(document.getElementById('entry-litres').value) || 10.0;
-
-    const matchingRate = DEFAULT_STATE.rateCharts.find(r => r.milkType === milkType && fat >= r.fatMin && fat <= r.fatMax);
-    const rate = matchingRate ? matchingRate.rate : (milkType === 'Buffalo' ? 60.0 : 42.0);
-    const amount = litres * rate;
-
-    const rateSpan = document.getElementById('display-rate');
-    const amountSpan = document.getElementById('display-total-amount');
-
-    if (rateSpan) rateSpan.innerText = rate.toFixed(1);
-    if (amountSpan) amountSpan.innerText = amount.toFixed(2);
-}
-
-function submitMilkCollection(e) {
-    e.preventDefault();
-    const farmerId = document.getElementById('entry-farmer-id').value;
-    const farmer = DEFAULT_STATE.farmers.find(f => f.id === farmerId);
-    const milkType = document.getElementById('entry-milk-type').value;
-    const shift = document.getElementById('entry-shift').value;
-    const litres = parseFloat(document.getElementById('entry-litres').value);
-    const fat = parseFloat(document.getElementById('entry-fat').value);
-    const snf = parseFloat(document.getElementById('entry-snf').value);
-    const clr = parseFloat(document.getElementById('entry-clr').value) || 28.0;
-    const date = document.getElementById('entry-date').value;
-
-    const matchingRate = DEFAULT_STATE.rateCharts.find(r => r.milkType === milkType && fat >= r.fatMin && fat <= r.fatMax);
-    const rate = matchingRate ? matchingRate.rate : 42.0;
-    const amount = litres * rate;
-
-    const newRecord = {
-        id: "MC" + (1000 + DEFAULT_STATE.collections.length + 1),
-        farmerId,
-        farmerName: farmer ? farmer.name : "Unknown",
-        date,
-        time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
-        shift,
-        milkType,
-        litres,
-        fat,
-        snf,
-        clr,
-        rate,
-        amount,
-        operatorId: DEFAULT_STATE.currentUser.username,
-        status: "Accepted"
-    };
-
-    DEFAULT_STATE.collections.unshift(newRecord);
-    DEFAULT_STATE.activeReceipt = newRecord;
-    saveState();
-    renderApp();
-}
-
-// =======================
-// DIGITAL RECEIPT MODAL
-// =======================
-function renderReceiptModal() {
-    const c = DEFAULT_STATE.activeReceipt;
-    if (!c) return '';
-
-    return `
-        <div class="fixed inset-0 bg-slate-900/70 backdrop-blur-sm flex items-center justify-center p-4 z-50">
-            <div class="bg-white rounded-2xl max-w-md w-full p-6 shadow-2xl relative" id="printable-receipt">
-                <div class="text-center border-b pb-4 mb-4">
-                    <div class="text-xl font-bold text-slate-900">Arun Traders</div>
-                    <div class="text-xs font-semibold text-emerald-600">Milk Collection Receipt (பால் சேகரிப்பு ரசீது)</div>
-                    <div class="tamil-text text-xs text-emerald-700 font-bold mt-1">அருண் டிரேடர்ஸ் • ${DEFAULT_STATE.settings.companySupport}</div>
-                    <div class="text-[11px] text-slate-500 mt-1">${DEFAULT_STATE.settings.address}</div>
-                </div>
-
-                <div class="space-y-2 text-xs text-slate-700 mb-6">
-                    <div class="flex justify-between py-1 border-b border-dashed">
-                        <span class="font-semibold text-slate-500">Receipt ID:</span>
-                        <span class="font-bold text-slate-900">${c.id}</span>
-                    </div>
-                    <div class="flex justify-between py-1 border-b border-dashed">
-                        <span class="font-semibold text-slate-500">Farmer Name:</span>
-                        <span class="font-bold text-slate-900">${c.farmerName} (${c.farmerId})</span>
-                    </div>
-                    <div class="flex justify-between py-1 border-b border-dashed">
-                        <span class="font-semibold text-slate-500">Date & Time:</span>
-                        <span class="font-medium">${c.date} | ${c.time}</span>
-                    </div>
-                    <div class="flex justify-between py-1 border-b border-dashed">
-                        <span class="font-semibold text-slate-500">Shift & Type:</span>
-                        <span class="font-medium">${c.shift} | ${c.milkType}</span>
-                    </div>
-                    <div class="flex justify-between py-1 border-b border-dashed">
-                        <span class="font-semibold text-slate-500">Quantity (Litres):</span>
-                        <span class="font-bold text-slate-900">${c.litres} L</span>
-                    </div>
-                    <div class="flex justify-between py-1 border-b border-dashed">
-                        <span class="font-semibold text-slate-500">FAT % / SNF %:</span>
-                        <span class="font-medium">${c.fat}% / ${c.snf}% (CLR: ${c.clr})</span>
-                    </div>
-                    <div class="flex justify-between py-1 border-b border-dashed">
-                        <span class="font-semibold text-slate-500">Rate per Litre:</span>
-                        <span class="font-medium">₹${c.rate}</span>
-                    </div>
-                    <div class="flex justify-between py-2 bg-emerald-50 px-3 rounded-xl font-bold text-sm text-emerald-800">
-                        <span>Total Amount:</span>
-                        <span>₹${c.amount.toFixed(2)}</span>
-                    </div>
-                </div>
-
-                <div class="flex gap-2 print:hidden">
-                    <button onclick="window.print()" class="flex-1 bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold py-2.5 rounded-xl text-xs transition">Print Receipt</button>
-                    <button onclick="downloadReceiptPDF()" class="flex-1 bg-sky-600 hover:bg-sky-700 text-white font-semibold py-2.5 rounded-xl text-xs transition">Download PDF</button>
-                    <button onclick="closeReceiptModal()" class="flex-1 bg-emerald-600 hover:bg-emerald-700 text-white font-semibold py-2.5 rounded-xl text-xs transition">Done</button>
-                </div>
-            </div>
-        </div>
-    `;
-}
-
-function downloadReceiptPDF() {
-    window.print();
-}
-
-function closeReceiptModal() {
-    DEFAULT_STATE.activeReceipt = null;
-    renderApp();
-}
-
-// ==========================================
-// MORNING & EVENING COLLECTION PAGES
-// ==========================================
-function renderCollectionPage(shiftName) {
-    const cols = DEFAULT_STATE.collections.filter(c => c.shift === shiftName);
-    const totalFarmers = new Set(cols.map(c => c.farmerId)).size;
-    const totalLitres = cols.reduce((acc, c) => acc + c.litres, 0);
-    const avgFat = cols.length > 0 ? (cols.reduce((acc, c) => acc + c.fat, 0) / cols.length).toFixed(1) : "4.2";
-    const avgSnf = cols.length > 0 ? (cols.reduce((acc, c) => acc + c.snf, 0) / cols.length).toFixed(1) : "8.5";
-    const totalPayable = cols.reduce((acc, c) => acc + c.amount, 0);
-
-    return `
-        <div class="space-y-6">
-            <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200 flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
-                <div>
-                    <h2 class="text-xl font-bold text-slate-900">${shiftName} Collection Summary (${shiftName === 'Morning' ? 'காலை பால் சேகரிப்பு' : 'மாலை பால் சேகரிப்பு'})</h2>
-                    <p class="text-xs text-slate-500 mt-0.5">Comprehensive audit and logs for ${shiftName.toLowerCase()} shift collections.</p>
-                </div>
-                <button onclick="setView('milk_entry')" class="bg-emerald-600 hover:bg-emerald-700 text-white px-4 py-2 rounded-xl text-xs font-semibold shadow">
-                    + Add New Collection
-                </button>
-            </div>
-
-            <!-- KPIs -->
-            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
-                <div class="dairy-card p-4">
-                    <div class="text-xs font-semibold text-slate-500 uppercase">Total Farmers</div>
-                    <div class="text-2xl font-bold text-slate-900 mt-1">${totalFarmers}</div>
-                </div>
-                <div class="dairy-card p-4">
-                    <div class="text-xs font-semibold text-slate-500 uppercase">Total Litres</div>
-                    <div class="text-2xl font-bold text-slate-900 mt-1">${totalLitres} L</div>
-                </div>
-                <div class="dairy-card p-4">
-                    <div class="text-xs font-semibold text-slate-500 uppercase">Average FAT</div>
-                    <div class="text-2xl font-bold text-slate-900 mt-1">${avgFat}%</div>
-                </div>
-                <div class="dairy-card p-4">
-                    <div class="text-xs font-semibold text-slate-500 uppercase">Average SNF</div>
-                    <div class="text-2xl font-bold text-slate-900 mt-1">${avgSnf}%</div>
-                </div>
-                <div class="dairy-card p-4">
-                    <div class="text-xs font-semibold text-slate-500 uppercase">Total Payable</div>
-                    <div class="text-2xl font-bold text-emerald-600 mt-1">₹${totalPayable.toFixed(2)}</div>
-                </div>
-            </div>
-
-            <!-- Table -->
-            <div class="dairy-card overflow-hidden">
-                <div class="p-4 border-b flex justify-between items-center">
-                    <h3 class="font-bold text-slate-900">${shiftName} Records (${cols.length})</h3>
-                    <input type="text" placeholder="Search records..." class="px-3 py-1.5 border rounded-xl text-xs bg-slate-50">
-                </div>
-                <div class="overflow-x-auto">
-                    <table class="w-full text-left border-collapse text-xs">
-                        <thead class="bg-slate-100/70 text-slate-700 uppercase font-semibold text-[11px]">
-                            <tr>
-                                <th class="p-4">Record ID</th>
-                                <th class="p-4">Farmer</th>
-                                <th class="p-4">Date & Time</th>
-                                <th class="p-4">Milk Type</th>
-                                <th class="p-4">Litres</th>
-                                <th class="p-4">FAT</th>
-                                <th class="p-4">SNF</th>
-                                <th class="p-4">Rate</th>
-                                <th class="p-4">Amount</th>
-                            </tr>
-                        </thead>
-                        <tbody class="divide-y text-slate-700 font-medium">
-                            ${cols.map(c => `
-                                <tr class="hover:bg-slate-50">
-                                    <td class="p-4 font-bold text-emerald-700">${c.id}</td>
-                                    <td class="p-4 font-bold text-slate-900">${c.farmerName} (${c.farmerId})</td>
-                                    <td class="p-4 text-slate-500">${c.date} | ${c.time}</td>
-                                    <td class="p-4">${c.milkType}</td>
-                                    <td class="p-4 font-bold">${c.litres} L</td>
-                                    <td class="p-4">${c.fat}%</td>
-                                    <td class="p-4">${c.snf}%</td>
-                                    <td class="p-4">₹${c.rate}</td>
-                                    <td class="p-4 font-bold text-emerald-600">₹${c.amount.toFixed(2)}</td>
-                                </tr>
-                            `).join('')}
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-        </div>
-    `;
-}
-
-// ==========================================
-// RATE MANAGEMENT PAGE
-// ==========================================
-function renderRatesPage() {
-    return `
-        <div class="space-y-6">
-            <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200 flex justify-between items-center">
-                <div>
-                    <h2 class="text-xl font-bold text-slate-900">Rate Chart Management (விலை பட்டியல் மேலாண்மை)</h2>
-                    <p class="text-xs text-slate-500 mt-0.5">Admin-configured milk rate chart based on FAT, SNF, and Milk Type.</p>
-                </div>
-                <button onclick="alert('New rate slab added!')" class="bg-emerald-600 hover:bg-emerald-700 text-white px-4 py-2.5 rounded-xl text-xs font-semibold shadow">
-                    + Add Rate Slab
-                </button>
-            </div>
-
-            <div class="dairy-card overflow-hidden">
-                <div class="overflow-x-auto">
-                    <table class="w-full text-left border-collapse text-xs">
-                        <thead class="bg-slate-100/70 text-slate-700 uppercase font-semibold text-[11px]">
-                            <tr>
-                                <th class="p-4">Milk Type</th>
-                                <th class="p-4">FAT Min-Max</th>
-                                <th class="p-4">SNF</th>
-                                <th class="p-4">Rate / Litre</th>
-                                <th class="p-4">Bonus</th>
-                                <th class="p-4">Effective From</th>
-                                <th class="p-4 text-right">Action</th>
-                            </tr>
-                        </thead>
-                        <tbody class="divide-y text-slate-700 font-medium">
-                            ${DEFAULT_STATE.rateCharts.map(r => `
-                                <tr class="hover:bg-slate-50">
-                                    <td class="p-4 font-bold text-slate-900">${r.milkType} Milk</td>
-                                    <td class="p-4">${r.fatMin} - ${r.fatMax}%</td>
-                                    <td class="p-4">${r.snf}%</td>
-                                    <td class="p-4 font-bold text-emerald-600 text-sm">₹${r.rate.toFixed(2)}</td>
-                                    <td class="p-4 text-emerald-700">+₹${r.bonus}</td>
-                                    <td class="p-4 text-slate-500">${r.effectiveFrom}</td>
-                                    <td class="p-4 text-right">
-                                        <button onclick="alert('Edit rate slab')" class="bg-slate-100 hover:bg-slate-200 px-3 py-1.5 rounded-lg font-semibold text-slate-700">Edit</button>
-                                    </td>
-                                </tr>
-                            `).join('')}
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-        </div>
-    `;
-}
-
-// ==========================================
-// FINANCIAL LEDGER PAGE
-// ==========================================
-function renderLedgerPage() {
-    return `
-        <div class="space-y-6">
-            <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200 flex justify-between items-center">
-                <div>
-                    <h2 class="text-xl font-bold text-slate-900">Farmer-wise Financial Ledger (நிதி லெட்ஜர்)</h2>
-                    <p class="text-xs text-slate-500 mt-0.5">Opening balance, milk earnings, bonuses, deductions, advances, and closing balance.</p>
-                </div>
-                <div class="flex gap-2">
-                    <button onclick="downloadStatement()" class="bg-slate-100 hover:bg-slate-200 px-4 py-2.5 rounded-xl text-xs font-semibold text-slate-700">Download Statement</button>
-                    <button onclick="window.print()" class="bg-emerald-600 hover:bg-emerald-700 text-white px-4 py-2.5 rounded-xl text-xs font-semibold shadow">Print Ledger</button>
-                </div>
-            </div>
-
-            <div class="dairy-card overflow-hidden">
-                <div class="overflow-x-auto">
-                    <table class="w-full text-left border-collapse text-xs">
-                        <thead class="bg-slate-100/70 text-slate-700 uppercase font-semibold text-[11px]">
-                            <tr>
-                                <th class="p-4">Farmer ID & Name</th>
-                                <th class="p-4">Opening Balance</th>
-                                <th class="p-4">Milk Earnings</th>
-                                <th class="p-4">Bonuses</th>
-                                <th class="p-4">Deductions</th>
-                                <th class="p-4">Advances</th>
-                                <th class="p-4">Payments</th>
-                                <th class="p-4">Closing Balance</th>
-                            </tr>
-                        </thead>
-                        <tbody class="divide-y text-slate-700 font-medium">
-                            ${DEFAULT_STATE.ledgers.map(l => `
-                                <tr class="hover:bg-slate-50">
-                                    <td class="p-4 font-bold text-slate-900">${l.farmerName} (${l.farmerId})</td>
-                                    <td class="p-4">₹${l.opening}</td>
-                                    <td class="p-4 font-semibold text-emerald-600">₹${l.earnings}</td>
-                                    <td class="p-4 text-emerald-700">+₹${l.bonuses}</td>
-                                    <td class="p-4 text-rose-600">-₹${l.deductions}</td>
-                                    <td class="p-4 text-amber-600">₹${l.advances}</td>
-                                    <td class="p-4 text-sky-600">₹${l.payments}</td>
-                                    <td class="p-4 font-bold text-slate-900">₹${l.closing}</td>
-                                </tr>
-                            `).join('')}
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-        </div>
-    `;
-}
-
-// ==========================================
-// PAYMENT MANAGEMENT PAGE
-// ==========================================
-function renderPaymentsPage() {
-    return `
-        <div class="space-y-6">
-            <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200 flex justify-between items-center">
-                <div>
-                    <h2 class="text-xl font-bold text-slate-900">Payment Management (பணப் பரிமாற்றம்)</h2>
-                    <p class="text-xs text-slate-500 mt-0.5">Manage farmer settlements via Cash, UPI, and Bank Transfer.</p>
-                </div>
-                <button onclick="alert('Bulk payment disbursement started')" class="bg-emerald-600 hover:bg-emerald-700 text-white px-4 py-2.5 rounded-xl text-xs font-semibold shadow">
-                    Disburse Weekly Payments
-                </button>
-            </div>
-
-            <div class="grid grid-cols-1 sm:grid-cols-4 gap-4">
-                <div class="dairy-card p-4">
-                    <div class="text-xs font-semibold text-slate-500 uppercase">Total Pending</div>
-                    <div class="text-2xl font-bold text-amber-600 mt-1">₹34,500</div>
-                </div>
-                <div class="dairy-card p-4">
-                    <div class="text-xs font-semibold text-slate-500 uppercase">Total Paid</div>
-                    <div class="text-2xl font-bold text-emerald-600 mt-1">₹36,770</div>
-                </div>
-                <div class="dairy-card p-4">
-                    <div class="text-xs font-semibold text-slate-500 uppercase">Today's Payments</div>
-                    <div class="text-2xl font-bold text-slate-900 mt-1">₹0.00</div>
-                </div>
-                <div class="dairy-card p-4">
-                    <div class="text-xs font-semibold text-slate-500 uppercase">This Month</div>
-                    <div class="text-2xl font-bold text-sky-600 mt-1">₹1,42,800</div>
-                </div>
-            </div>
-
-            <div class="dairy-card overflow-hidden">
-                <div class="p-4 border-b flex justify-between items-center">
-                    <h3 class="font-bold text-slate-900">Payment History</h3>
-                    <input type="text" placeholder="Search payment..." class="px-3 py-1.5 border rounded-xl text-xs bg-slate-50">
-                </div>
-                <div class="overflow-x-auto">
-                    <table class="w-full text-left border-collapse text-xs">
-                        <thead class="bg-slate-100/70 text-slate-700 uppercase font-semibold text-[11px]">
-                            <tr>
-                                <th class="p-4">Payment ID</th>
-                                <th class="p-4">Farmer</th>
-                                <th class="p-4">Date</th>
-                                <th class="p-4">Amount</th>
-                                <th class="p-4">Method</th>
-                                <th class="p-4">Reference Number</th>
-                                <th class="p-4">Status</th>
-                            </tr>
-                        </thead>
-                        <tbody class="divide-y text-slate-700 font-medium">
-                            ${DEFAULT_STATE.payments.map(p => `
-                                <tr class="hover:bg-slate-50">
-                                    <td class="p-4 font-bold text-slate-900">${p.id}</td>
-                                    <td class="p-4 font-bold text-emerald-700">${p.farmerName} (${p.farmerId})</td>
-                                    <td class="p-4 text-slate-500">${p.date}</td>
-                                    <td class="p-4 font-bold text-emerald-600">₹${p.amount.toFixed(2)}</td>
-                                    <td class="p-4"><span class="px-2 py-0.5 bg-slate-100 rounded">${p.method}</span></td>
-                                    <td class="p-4 text-slate-500">${p.referenceNumber}</td>
-                                    <td class="p-4"><span class="px-2 py-0.5 bg-emerald-100 text-emerald-800 rounded font-bold">${p.status}</span></td>
-                                </tr>
-                            `).join('')}
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-        </div>
-    `;
-}
-
-// ==========================================
-// PROFESSIONAL REPORTS SECTION
-// ==========================================
-function renderReportsPage() {
-    return `
-        <div class="space-y-6">
-            <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-                <div>
-                    <h2 class="text-xl font-bold text-slate-900">Professional Reports (விரிவான அறிக்கைகள்)</h2>
-                    <p class="text-xs text-slate-500 mt-0.5">Generate, filter and export daily, monthly, quality and payment reports.</p>
-                </div>
-                <div class="flex gap-2">
-                    <button onclick="downloadStatement()" class="bg-emerald-600 hover:bg-emerald-700 text-white px-4 py-2.5 rounded-xl text-xs font-semibold shadow">Export Excel</button>
-                    <button onclick="window.print()" class="bg-slate-100 hover:bg-slate-200 px-4 py-2.5 rounded-xl text-xs font-semibold text-slate-700">Download PDF</button>
-                </div>
-            </div>
-
-            <div class="dairy-card p-6 grid grid-cols-1 sm:grid-cols-4 gap-4">
-                <div>
-                    <label class="block text-xs font-semibold text-slate-700 mb-1">Report Type</label>
-                    <select id="report-type-select" class="w-full px-3 py-2 border rounded-xl text-xs bg-slate-50">
-                        <option>Daily Collection Report</option>
-                        <option>Morning Collection Report</option>
-                        <option>Evening Collection Report</option>
-                        <option>Farmer-wise Report</option>
-                        <option>Milk Quality Report (FAT/SNF)</option>
-                        <option>Payment & Ledger Report</option>
-                        <option>Monthly Summary Report</option>
-                    </select>
-                </div>
-                <div>
-                    <label class="block text-xs font-semibold text-slate-700 mb-1">From Date</label>
-                    <input type="date" id="report-from-date" value="2024-05-01" class="w-full px-3 py-2 border rounded-xl text-xs bg-slate-50">
-                </div>
-                <div>
-                    <label class="block text-xs font-semibold text-slate-700 mb-1">To Date</label>
-                    <input type="date" id="report-to-date" value="2024-05-20" class="w-full px-3 py-2 border rounded-xl text-xs bg-slate-50">
-                </div>
-                <div class="flex items-end">
-                    <button onclick="runGenerateReport()" class="w-full bg-slate-900 hover:bg-slate-800 text-white py-2 rounded-xl text-xs font-semibold shadow">Generate Report</button>
-                </div>
-            </div>
-
-            <div id="report-results-container">
-                <div class="dairy-card p-6 text-center py-12">
-                    <div class="text-4xl mb-3">📈</div>
-                    <h3 class="font-bold text-slate-900 text-base">Select report parameters above and click Generate Report</h3>
-                    <p class="text-xs text-slate-500 mt-1">All reports are fully formatted for Arun Traders & ${DEFAULT_STATE.settings.companySupport}</p>
-                </div>
-            </div>
-        </div>
-    `;
-}
-
-function runGenerateReport() {
-    const container = document.getElementById('report-results-container');
-    if (!container) return;
-
-    const reportType = document.getElementById('report-type-select')?.value || 'Daily Collection Report';
-    const cols = DEFAULT_STATE.collections;
-    const totalLitres = cols.reduce((acc, c) => acc + c.litres, 0);
-    const totalAmount = cols.reduce((acc, c) => acc + c.amount, 0);
-
-    container.innerHTML = `
-        <div class="dairy-card p-6 space-y-4">
-            <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center border-b pb-4 gap-2">
-                <div>
-                    <h3 class="font-bold text-slate-900 text-base">${reportType}</h3>
-                    <p class="text-xs text-slate-500">Generated for Arun Traders • Total Records: ${cols.length}</p>
-                </div>
-                <div class="flex gap-2">
-                    <button onclick="downloadStatement()" class="bg-emerald-600 hover:bg-emerald-700 text-white px-3 py-1.5 rounded-lg text-xs font-semibold">Export CSV</button>
-                    <button onclick="window.print()" class="bg-slate-100 hover:bg-slate-200 text-slate-700 px-3 py-1.5 rounded-lg text-xs font-semibold">Print Report</button>
-                </div>
-            </div>
-
-            <div class="grid grid-cols-2 sm:grid-cols-3 gap-4">
-                <div class="bg-slate-50 p-3 rounded-xl border">
-                    <div class="text-[11px] text-slate-500 font-semibold">Total Quantity</div>
-                    <div class="text-lg font-bold text-slate-900 mt-1">${totalLitres} Litres</div>
-                </div>
-                <div class="bg-slate-50 p-3 rounded-xl border">
-                    <div class="text-[11px] text-slate-500 font-semibold">Total Payable Amount</div>
-                    <div class="text-lg font-bold text-emerald-600 mt-1">₹${totalAmount.toFixed(2)}</div>
-                </div>
-                <div class="bg-slate-50 p-3 rounded-xl border">
-                    <div class="text-[11px] text-slate-500 font-semibold">Average FAT / SNF</div>
-                    <div class="text-lg font-bold text-slate-900 mt-1">4.2% / 8.5%</div>
-                </div>
-            </div>
-
-            <div class="overflow-x-auto max-h-96 border rounded-xl">
-                <table class="w-full text-left border-collapse text-xs">
-                    <thead class="bg-slate-100 sticky top-0">
-                        <tr>
-                            <th class="p-3">Record ID</th>
-                            <th class="p-3">Farmer Name</th>
-                            <th class="p-3">Date & Shift</th>
-                            <th class="p-3">Milk Type</th>
-                            <th class="p-3">Litres</th>
-                            <th class="p-3">FAT / SNF</th>
-                            <th class="p-3">Rate</th>
-                            <th class="p-3">Amount</th>
-                        </tr>
-                    </thead>
-                    <tbody class="divide-y font-medium text-slate-700">
-                        ${cols.map(c => `
-                            <tr>
-                                <td class="p-3 font-bold text-emerald-700">${c.id}</td>
-                                <td class="p-3 font-bold text-slate-900">${c.farmerName} (${c.farmerId})</td>
-                                <td class="p-3 text-slate-500">${c.date} | ${c.shift}</td>
-                                <td class="p-3">${c.milkType}</td>
-                                <td class="p-3 font-bold">${c.litres} L</td>
-                                <td class="p-3">${c.fat}% / ${c.snf}%</td>
-                                <td class="p-3">₹${c.rate}</td>
-                                <td class="p-3 font-bold text-emerald-600">₹${c.amount.toFixed(2)}</td>
-                            </tr>
-                        `).join('')}
-                    </tbody>
-                </table>
-            </div>
-        </div>
-    `;
-}
-
-function downloadStatement(farmerId = null) {
-    let csv = "Arun Traders - Financial & Collection Statement\nDate,Farmer ID,Farmer Name,Shift,Milk Type,Litres,FAT,SNF,Rate,Amount\n";
-    let records = DEFAULT_STATE.collections;
-    if (farmerId) {
-        records = records.filter(c => c.farmerId === farmerId);
-    }
-    records.forEach(c => {
-        csv += `${c.date},${c.farmerId},${c.farmerName},${c.shift},${c.milkType},${c.litres},${c.fat},${c.snf},${c.rate},${c.amount}\n`;
-    });
-    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = `ArunTraders_Statement_${farmerId || 'All'}_${new Date().toISOString().split('T')[0]}.csv`;
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
-}
-
-// ==========================================
-// ADVANCED ANALYTICS PAGE
-// ==========================================
-function renderAnalyticsPage() {
-    return `
-        <div class="space-y-6">
-            <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200">
-                <h2 class="text-xl font-bold text-slate-900">Advanced Analytics & Intelligence (மேம்பட்ட பகுப்பாய்வு)</h2>
-                <p class="text-xs text-slate-500 mt-0.5">Deep insights, supply trends, and performance metrics for Arun Traders.</p>
-            </div>
-
-            <!-- Intelligent Insights Box -->
-            <div class="bg-gradient-to-r from-teal-50 to-emerald-50 border border-emerald-200 p-5 rounded-2xl space-y-2">
-                <div class="text-xs font-bold text-emerald-800 uppercase tracking-wider">💡 Intelligent Society Insights</div>
-                <div class="text-sm font-semibold text-slate-800">"Evening collection increased by 12% compared with last week."</div>
-                <div class="text-xs text-slate-600">• Ramesh Kumar supplied the highest quantity this month (384 L).</div>
-                <div class="text-xs text-slate-600">• Average FAT improved from 4.1% to 4.3% across all chilling centers.</div>
-            </div>
-
-            <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                <div class="dairy-card p-5">
-                    <div class="text-xs font-semibold text-slate-500 uppercase">This Month Total</div>
-                    <div class="text-2xl font-bold text-slate-900 mt-1">24,580 Litres</div>
-                </div>
-                <div class="dairy-card p-5">
-                    <div class="text-xs font-semibold text-slate-500 uppercase">Highest Collection Day</div>
-                    <div class="text-2xl font-bold text-emerald-600 mt-1">1,420 L (May 12)</div>
-                </div>
-                <div class="dairy-card p-5">
-                    <div class="text-xs font-semibold text-slate-500 uppercase">Most Active Supplier</div>
-                    <div class="text-2xl font-bold text-sky-600 mt-1">Ramesh Kumar</div>
-                </div>
-            </div>
-
-            <div class="dairy-card p-6">
-                <h3 class="font-bold text-slate-900 mb-4">Monthly Milk Collection Trend</h3>
-                <div class="h-64 flex items-center justify-center bg-slate-50 rounded-xl border border-dashed">
-                    <canvas id="analyticsChart" class="max-h-56"></canvas>
-                </div>
-            </div>
-        </div>
-    `;
-}
-
-setTimeout(() => {
-    const ctx = document.getElementById('analyticsChart');
-    if (ctx && window.Chart) {
-        new Chart(ctx, {
-            type: 'line',
-            data: {
-                labels: ['Week 1', 'Week 2', 'Week 3', 'Week 4'],
-                datasets: [{ label: 'Monthly Litres', data: [5800, 6100, 6350, 6330], borderColor: '#10b981', backgroundColor: 'rgba(16, 185, 129, 0.1)', fill: true, tension: 0.3 }]
-            },
-            options: { responsive: true, maintainAspectRatio: false }
-        });
-    }
-}, 200);
-
-// ==========================================
-// FARMER PORTAL / DASHBOARD
-// ==========================================
-function renderFarmerDashboard() {
-    const farmerId = DEFAULT_STATE.currentUser.farmerId || "F001";
-    const farmer = DEFAULT_STATE.farmers.find(f => f.id === farmerId) || DEFAULT_STATE.farmers[0];
-    const fCols = DEFAULT_STATE.collections.filter(c => c.farmerId === farmer.id);
-    const todayCol = fCols.find(c => c.date === '2024-05-20') || { litres: 12.5, fat: 4.2, snf: 8.5, amount: 550.0 };
-
-    return `
-        <div class="space-y-6">
-            <div class="bg-gradient-to-r from-slate-900 to-emerald-950 rounded-2xl p-6 text-white shadow-lg flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-                <div>
-                    <div class="text-xs uppercase tracking-wider text-emerald-400 font-semibold">Farmer Portal • ${farmer.id}</div>
-                    <h2 class="text-2xl font-bold mt-1">Welcome, ${farmer.name}</h2>
-                    <p class="text-xs text-slate-300 mt-1">Village: ${farmer.village} | Mobile: ${farmer.phone}</p>
-                </div>
-                <div class="bg-white/10 px-4 py-2 rounded-xl text-xs font-semibold backdrop-blur-md">
-                    ${DEFAULT_STATE.settings.companySupport}
-                </div>
-            </div>
-
-            <div class="grid grid-cols-1 sm:grid-cols-4 gap-4">
-                <div class="dairy-card p-5">
-                    <div class="text-xs font-semibold text-slate-500 uppercase">Today's Milk</div>
-                    <div class="text-2xl font-bold text-slate-900 mt-1">${todayCol.litres} L</div>
-                </div>
-                <div class="dairy-card p-5">
-                    <div class="text-xs font-semibold text-slate-500 uppercase">Today's Quality</div>
-                    <div class="text-2xl font-bold text-emerald-600 mt-1">${todayCol.fat}% FAT</div>
-                </div>
-                <div class="dairy-card p-5">
-                    <div class="text-xs font-semibold text-slate-500 uppercase">Today's Amount</div>
-                    <div class="text-2xl font-bold text-emerald-600 mt-1">₹${todayCol.amount}</div>
-                </div>
-                <div class="dairy-card p-5">
-                    <div class="text-xs font-semibold text-slate-500 uppercase">Pending Payment</div>
-                    <div class="text-2xl font-bold text-amber-600 mt-1">₹1,500</div>
-                </div>
-            </div>
-
-            <div class="dairy-card p-6">
-                <div class="flex justify-between items-center mb-4">
-                    <h3 class="font-bold text-slate-900">My Collection History</h3>
-                    <button onclick="downloadStatement('${farmer.id}')" class="bg-emerald-600 hover:bg-emerald-700 text-white px-3 py-1.5 rounded-lg text-xs font-semibold">Download Statement</button>
-                </div>
-                <div class="overflow-x-auto">
-                    <table class="w-full text-left border-collapse text-xs">
-                        <thead class="bg-slate-100">
-                            <tr>
-                                <th class="p-3">Date</th>
-                                <th class="p-3">Shift</th>
-                                <th class="p-3">Milk Type</th>
-                                <th class="p-3">Litres</th>
-                                <th class="p-3">FAT / SNF</th>
-                                <th class="p-3">Rate</th>
-                                <th class="p-3">Amount</th>
-                            </tr>
-                        </thead>
-                        <tbody class="divide-y font-medium text-slate-700">
-                            ${fCols.map(c => `
-                                <tr>
-                                    <td class="p-3">${c.date}</td>
-                                    <td class="p-3">${c.shift}</td>
-                                    <td class="p-3">${c.milkType}</td>
-                                    <td class="p-3 font-bold">${c.litres} L</td>
-                                    <td class="p-3">${c.fat}% / ${c.snf}%</td>
-                                    <td class="p-3">₹${c.rate}</td>
-                                    <td class="p-3 font-bold text-emerald-600">₹${c.amount}</td>
-                                </tr>
-                            `).join('')}
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-        </div>
-    `;
-}
-
-// ==========================================
-// SETTINGS PAGE
-// ==========================================
-function renderSettingsPage() {
-    return `
-        <div class="max-w-2xl mx-auto space-y-6">
-            <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200">
-                <h2 class="text-xl font-bold text-slate-900">System Settings (அமைப்பு அமைப்புகள்)</h2>
-                <p class="text-xs text-slate-500 mt-0.5">Configure society details, VKA Milk branding, collection timings, and rate parameters.</p>
-            </div>
-
-            <div class="dairy-card p-6 space-y-4 text-xs">
-                <div>
-                    <label class="block font-semibold text-slate-700 mb-1">Society Name</label>
-                    <input type="text" value="${DEFAULT_STATE.settings.societyName}" class="w-full px-3 py-2 border rounded-xl bg-slate-50">
-                </div>
-                <div class="grid grid-cols-2 gap-4">
-                    <div>
-                        <label class="block font-semibold text-slate-700 mb-1">Company Support Branding</label>
-                        <input type="text" value="${DEFAULT_STATE.settings.companySupport}" class="w-full px-3 py-2 border rounded-xl bg-slate-50">
-                    </div>
-                    <div>
-                        <label class="block font-semibold text-slate-700 mb-1">Tamil Branding</label>
-                        <input type="text" value="${DEFAULT_STATE.settings.tamilName}" class="w-full px-3 py-2 border rounded-xl bg-slate-50">
-                    </div>
-                </div>
-                <div>
-                    <label class="block font-semibold text-slate-700 mb-1">Address</label>
-                    <input type="text" value="${DEFAULT_STATE.settings.address}" class="w-full px-3 py-2 border rounded-xl bg-slate-50">
-                </div>
-                <div class="grid grid-cols-2 gap-4">
-                    <div>
-                        <label class="block font-semibold text-slate-700 mb-1">Morning Collection Time</label>
-                        <input type="text" value="${DEFAULT_STATE.settings.morningTime}" class="w-full px-3 py-2 border rounded-xl bg-slate-50">
-                    </div>
-                    <div>
-                        <label class="block font-semibold text-slate-700 mb-1">Evening Collection Time</label>
-                        <input type="text" value="${DEFAULT_STATE.settings.eveningTime}" class="w-full px-3 py-2 border rounded-xl bg-slate-50">
-                    </div>
-                </div>
-                <button onclick="alert('Settings saved successfully!')" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-semibold py-3 rounded-xl shadow">Save Settings</button>
-            </div>
-        </div>
-    `;
-}
-
-function filterDashTable() {
-    const q = document.getElementById('dash-search').value.toLowerCase();
-    const rows = document.querySelectorAll('#dash-table-body tr');
+function filterFeedTable() {
+    const q = document.getElementById('feed-search').value.toLowerCase();
+    const rows = document.querySelectorAll('#feed-table-body tr');
     rows.forEach(r => {
         r.style.display = r.innerText.toLowerCase().includes(q) ? '' : 'none';
     });
-}
-
-function attachViewListeners() {
-    // Attach additional view-specific handlers if needed
 }
