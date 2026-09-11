@@ -86,7 +86,7 @@
     <!-- Application Core Script -->
     <script>
         // Arun Traders - Milk Collection & Society Management System
-        // Professional UI with VKA Milk Branding & Comprehensive PDF / Printable Reports
+        // Professional UI with VKA Milk Branding & Accurate Running Ledger Calculation
 
         document.addEventListener('DOMContentLoaded', () => {
             initializeApp();
@@ -233,6 +233,7 @@
             renderApp();
         }
 
+        // Core Accounting Rule (Formula: Total Due = Total Value of All Feed Purchases − Total Payments Received)
         function getCustomerBalance(farmerId) {
             const sales = DEFAULT_STATE.feedSales.filter(s => s.farmerId === farmerId);
             const payments = DEFAULT_STATE.feedPayments.filter(p => p.farmerId === farmerId);
@@ -260,7 +261,7 @@
 
             root.innerHTML = `
                 <div class="min-h-screen flex flex-col md:flex-row bg-slate-50">
-                    <aside class="hidden md:flex flex-col w-64 bg-slate-900 text-slate-100 border-r border-slate-800 shrink-0">
+                    <aside class="hidden md:flex flex-col w-64 bg-slate-900 text-slate-100 border-r border-slate-800 shrink-0 no-print">
                         ${renderSidebarContent()}
                     </aside>
                     <div class="md:hidden flex items-center justify-between bg-slate-900 text-white p-4 sticky top-0 z-40 shadow no-print">
@@ -620,9 +621,9 @@
                         <div>
                             <div class="text-xs uppercase tracking-wider font-semibold text-emerald-200">Arun Traders • Cattle Feed Management</div>
                             <h2 class="text-xl md:text-2xl font-bold mt-1">🌾 Feed Sales & Credit Ledger</h2>
-                            <p class="text-xs md:text-sm text-emerald-100 mt-1">Nutribest, Lactobest, Milky best, Dairybest & Delite distribution & credit ledger.</p>
+                            <p class="text-xs md:text-sm text-emerald-100 mt-1">Nutribest, Lactobest, Milky best, Dairybest & Delite distribution & running credit ledger.</p>
                         </div>
-                        <div class="flex flex-wrap gap-2 w-full md:w-auto">
+                        <div class="flex flex-wrap gap-2 w-full md:w-auto no-print">
                             <button onclick="window.print()" class="bg-emerald-800 hover:bg-emerald-900 text-white px-4 py-2.5 rounded-xl text-xs md:text-sm font-semibold shadow transition flex items-center justify-center gap-2 flex-1 md:flex-initial">
                                 <span>📄</span> Print Summary Report PDF
                             </button>
@@ -649,7 +650,7 @@
                         </div>
                     </div>
 
-                    <!-- Available Feed Varieties & Summary Breakdown -->
+                    <!-- Available Feed Varieties -->
                     <div class="dairy-card p-4 md:p-6">
                         <h3 class="font-bold text-slate-900 text-sm md:text-base mb-3">🏷️ Available Feed Varieties & Pricing</h3>
                         <div class="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-6 gap-2.5">
@@ -708,7 +709,7 @@
                                         <th class="p-3.5">Paid</th>
                                         <th class="p-3.5">Mode</th>
                                         <th class="p-3.5 font-bold text-amber-700">Balance Due</th>
-                                        ${!isFarmer ? '<th class="p-3.5 text-right">Action</th>' : ''}
+                                        ${!isFarmer ? '<th class="p-3.5 text-right no-print">Action</th>' : ''}
                                     </tr>
                                 </thead>
                                 <tbody id="feed-table-body" class="divide-y text-slate-700 font-medium">
@@ -723,7 +724,7 @@
                                             <td class="p-3.5"><span class="px-2 py-0.5 rounded text-[10px] font-bold ${s.paymentMode.includes('Cash') ? 'bg-amber-100 text-amber-800' : s.paymentMode.includes('Online') ? 'bg-sky-100 text-sky-800' : 'bg-rose-100 text-rose-800'}">${s.paymentMode}</span></td>
                                             <td class="p-3.5 font-extrabold ${s.balanceDue > 0 ? 'text-rose-600' : 'text-emerald-600'}">₹${s.balanceDue}</td>
                                             ${!isFarmer ? `
-                                            <td class="p-3.5 text-right">
+                                            <td class="p-3.5 text-right no-print">
                                                 ${s.balanceDue > 0 ? `<button onclick="openPayFeedModal('${s.id}')" class="bg-emerald-600 hover:bg-emerald-700 text-white px-3 py-1 rounded-lg text-xs font-semibold">Clear Due</button>` : '<span class="text-emerald-600 font-bold">Settled ✓</span>'}
                                             </td>` : ''}
                                         </tr>
@@ -747,7 +748,7 @@
                                     <div class="text-slate-600">${s.feedName} — <b>${s.bags} bags</b></div>
                                     <div class="flex justify-between items-center pt-1 border-t border-dashed">
                                         <div>Paid: <span class="text-emerald-600 font-bold">₹${s.paidAmount}</span> | Due: <span class="text-rose-600 font-bold">₹${s.balanceDue}</span></div>
-                                        ${!isFarmer && s.balanceDue > 0 ? `<button onclick="openPayFeedModal('${s.id}')" class="bg-emerald-600 text-white px-3 py-1.5 rounded-lg text-xs font-semibold">Clear Due</button>` : ''}
+                                        ${!isFarmer && s.balanceDue > 0 ? `<button onclick="openPayFeedModal('${s.id}')" class="bg-emerald-600 text-white px-3 py-1.5 rounded-lg text-xs font-semibold no-print">Clear Due</button>` : ''}
                                     </div>
                                 </div>
                             `).join('')}
@@ -755,9 +756,9 @@
                     </div>
                 </div>
 
-                <!-- Unified Same-Popup Modal for Feed Sale & Add Customer -->
+                <!-- Unified Same-Popup Modal for Feed Sale & Add Customer (Fixed Centering & Scroll) -->
                 <div id="feed-sale-modal" class="fixed inset-0 bg-slate-950/70 backdrop-blur-sm hidden items-center justify-center p-3 z-50 overflow-y-auto">
-                    <div class="bg-white rounded-2xl max-w-lg w-full p-5 md:p-6 shadow-2xl my-auto">
+                    <div class="bg-white rounded-2xl max-w-lg w-full p-5 md:p-6 shadow-2xl my-auto max-h-[90vh] overflow-y-auto">
 
                         <!-- VIEW 1: Feed Sale Form -->
                         <div id="modal-view-sale" class="space-y-4">
@@ -1004,14 +1005,16 @@
 
         function openFeedSaleModal() {
             switchModalView('sale');
-            document.getElementById('feed-sale-modal').classList.remove('hidden');
-            document.getElementById('feed-sale-modal').classList.add('flex');
+            const modal = document.getElementById('feed-sale-modal');
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
             updateFeedSaleCalc();
         }
 
         function closeFeedSaleModal() {
-            document.getElementById('feed-sale-modal').classList.add('hidden');
-            document.getElementById('feed-sale-modal').classList.remove('flex');
+            const modal = document.getElementById('feed-sale-modal');
+            modal.classList.add('hidden');
+            modal.classList.remove('flex');
         }
 
         function switchModalView(view) {
@@ -1151,8 +1154,9 @@
             document.getElementById('pay-feed-tx-id').value = txId;
             document.getElementById('pay-feed-customer-id').value = '';
             document.getElementById('pay-feed-amount').value = tx.balanceDue;
-            document.getElementById('pay-feed-modal').classList.remove('hidden');
-            document.getElementById('pay-feed-modal').classList.add('flex');
+            const modal = document.getElementById('pay-feed-modal');
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
         }
 
         function openPayFeedModalForCustomer(farmerId) {
@@ -1160,15 +1164,18 @@
             document.getElementById('pay-feed-tx-id').value = '';
             document.getElementById('pay-feed-customer-id').value = farmerId;
             document.getElementById('pay-feed-amount').value = cb.outstandingBalance;
-            document.getElementById('pay-feed-modal').classList.remove('hidden');
-            document.getElementById('pay-feed-modal').classList.add('flex');
+            const modal = document.getElementById('pay-feed-modal');
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
         }
 
         function closePayFeedModal() {
-            document.getElementById('pay-feed-modal').classList.add('hidden');
-            document.getElementById('pay-feed-modal').classList.remove('flex');
+            const modal = document.getElementById('pay-feed-modal');
+            modal.classList.add('hidden');
+            modal.classList.remove('flex');
         }
 
+        // Rule 7, 9, 14: Strict payment validation & FIFO distribution
         function confirmClearFeedDue() {
             const txId = document.getElementById('pay-feed-tx-id').value;
             const customerId = document.getElementById('pay-feed-customer-id').value;
