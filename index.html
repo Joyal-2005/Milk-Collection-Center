@@ -54,6 +54,12 @@
         .animate-fade-in {
             animation: fadeIn 0.25s ease-out forwards;
         }
+        @media print {
+            body * { visibility: hidden; }
+            #printable-area, #printable-area * { visibility: visible; }
+            #printable-area { position: absolute; left: 0; top: 0; width: 100%; margin: 0; padding: 20px; background: white; }
+            .no-print { display: none !important; }
+        }
     </style>
 </head>
 <body class="bg-slate-50 text-slate-800 antialiased selection:bg-emerald-500 selection:text-white pb-16 md:pb-0">
@@ -62,7 +68,7 @@
     <div id="app-root"></div>
 
     <!-- Mobile Sticky Bottom Quick Action Bar -->
-    <div id="mobile-quick-bar" class="md:hidden fixed bottom-0 left-0 right-0 bg-white/95 backdrop-blur-md border-t border-slate-200 p-2.5 flex justify-around items-center z-40 shadow-lg hidden">
+    <div id="mobile-quick-bar" class="md:hidden fixed bottom-0 left-0 right-0 bg-white/95 backdrop-blur-md border-t border-slate-200 p-2.5 flex justify-around items-center z-40 shadow-lg hidden no-print">
         <button onclick="setView('feed_sales')" class="flex flex-col items-center text-slate-700 hover:text-emerald-600 text-[10px] font-bold">
             <span class="text-lg">🌾</span> Feed Ledger
         </button>
@@ -80,7 +86,7 @@
     <!-- Application Core Script -->
     <script>
         // Arun Traders - Milk Collection & Society Management System
-        // Professional UI with VKA Milk Branding & Unified Same-Popup Modal Flows
+        // Professional UI with VKA Milk Branding & Comprehensive PDF / Printable Reports
 
         document.addEventListener('DOMContentLoaded', () => {
             initializeApp();
@@ -257,7 +263,7 @@
                     <aside class="hidden md:flex flex-col w-64 bg-slate-900 text-slate-100 border-r border-slate-800 shrink-0">
                         ${renderSidebarContent()}
                     </aside>
-                    <div class="md:hidden flex items-center justify-between bg-slate-900 text-white p-4 sticky top-0 z-40 shadow">
+                    <div class="md:hidden flex items-center justify-between bg-slate-900 text-white p-4 sticky top-0 z-40 shadow no-print">
                         <div class="flex items-center space-x-2">
                             <span class="text-base font-bold text-emerald-400">🥛 Arun Traders</span>
                         </div>
@@ -265,7 +271,7 @@
                             <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/></svg>
                         </button>
                     </div>
-                    <div id="mobile-drawer" class="fixed inset-0 z-50 bg-slate-900/85 backdrop-blur-sm hidden md:hidden flex-col">
+                    <div id="mobile-drawer" class="fixed inset-0 z-50 bg-slate-900/85 backdrop-blur-sm hidden md:hidden flex-col no-print">
                         <div class="w-64 bg-slate-900 h-full flex flex-col p-4 text-white">
                             <div class="flex justify-between items-center mb-6">
                                 <span class="text-xl font-bold text-emerald-400">Arun Traders</span>
@@ -278,7 +284,7 @@
                     </div>
                     <div class="flex-1 flex flex-col min-w-0">
                         <!-- Professional Header -->
-                        <header class="bg-gradient-to-r from-emerald-800 via-emerald-900 to-teal-900 text-white h-16 md:h-20 flex items-center justify-between px-4 md:px-8 shadow-md">
+                        <header class="bg-gradient-to-r from-emerald-800 via-emerald-900 to-teal-900 text-white h-16 md:h-20 flex items-center justify-between px-4 md:px-8 shadow-md no-print">
                             <div class="flex items-center space-x-3 truncate">
                                 <div class="hidden sm:flex items-center justify-center w-10 h-10 bg-white/10 rounded-xl text-xl">🥛</div>
                                 <div>
@@ -299,10 +305,10 @@
                                 </button>
                             </div>
                         </header>
-                        <main class="flex-1 p-3 md:p-8 max-w-7xl w-full mx-auto animate-fade-in">
+                        <main class="flex-1 p-3 md:p-8 max-w-7xl w-full mx-auto animate-fade-in" id="printable-area">
                             ${renderCurrentView()}
                         </main>
-                        <footer class="bg-white border-t border-slate-200 py-3 px-4 text-center text-xs text-slate-500 flex flex-col sm:flex-row justify-between items-center gap-1">
+                        <footer class="bg-white border-t border-slate-200 py-3 px-4 text-center text-xs text-slate-500 flex flex-col sm:flex-row justify-between items-center gap-1 no-print">
                             <div>© ${new Date().getFullYear()} Arun Traders – Milk Collection & Society Management System</div>
                             <div class="tamil-text text-emerald-700 font-medium">அருண் டிரேடர்ஸ் | பால் சேகரிப்பு மையம் | VKA Milk ஆதரவுடன்</div>
                         </footer>
@@ -616,10 +622,15 @@
                             <h2 class="text-xl md:text-2xl font-bold mt-1">🌾 Feed Sales & Credit Ledger</h2>
                             <p class="text-xs md:text-sm text-emerald-100 mt-1">Nutribest, Lactobest, Milky best, Dairybest & Delite distribution & credit ledger.</p>
                         </div>
-                        ${!isFarmer ? `
-                        <button onclick="openFeedSaleModal()" class="bg-white text-emerald-700 hover:bg-emerald-50 px-4 py-2.5 rounded-xl text-xs md:text-sm font-semibold shadow transition flex items-center justify-center gap-2 w-full md:w-auto">
-                            <span>+</span> New Feed Sale / Credit Entry
-                        </button>` : ''}
+                        <div class="flex flex-wrap gap-2 w-full md:w-auto">
+                            <button onclick="window.print()" class="bg-emerald-800 hover:bg-emerald-900 text-white px-4 py-2.5 rounded-xl text-xs md:text-sm font-semibold shadow transition flex items-center justify-center gap-2 flex-1 md:flex-initial">
+                                <span>📄</span> Print Summary Report PDF
+                            </button>
+                            ${!isFarmer ? `
+                            <button onclick="openFeedSaleModal()" class="bg-white text-emerald-700 hover:bg-emerald-50 px-4 py-2.5 rounded-xl text-xs md:text-sm font-semibold shadow transition flex items-center justify-center gap-2 flex-1 md:flex-initial">
+                                <span>+</span> New Feed Sale
+                            </button>` : ''}
+                        </div>
                     </div>
 
                     <!-- KPI Cards -->
@@ -638,7 +649,7 @@
                         </div>
                     </div>
 
-                    <!-- Available Feed Varieties -->
+                    <!-- Available Feed Varieties & Summary Breakdown -->
                     <div class="dairy-card p-4 md:p-6">
                         <h3 class="font-bold text-slate-900 text-sm md:text-base mb-3">🏷️ Available Feed Varieties & Pricing</h3>
                         <div class="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-6 gap-2.5">
@@ -886,7 +897,7 @@
         }
 
         // ==========================================
-        // CUSTOMER CREDIT PROFILE VIEW
+        // CUSTOMER CREDIT PROFILE VIEW (WITH PDF DOWNLOAD)
         // ==========================================
         function renderCustomerCreditProfile(farmerId) {
             const f = DEFAULT_STATE.farmers.find(item => item.id === farmerId) || { id: farmerId, name: "Customer", village: "Village" };
@@ -896,33 +907,38 @@
                 <div class="space-y-6">
                     <div class="bg-white p-5 md:p-6 rounded-2xl shadow-sm border border-slate-200 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
                         <div class="flex items-center gap-3">
-                            <button onclick="setView('feed_sales')" class="bg-slate-100 hover:bg-slate-200 text-slate-700 px-3 py-2 rounded-xl text-xs font-semibold">← Back</button>
+                            <button onclick="setView('feed_sales')" class="bg-slate-100 hover:bg-slate-200 text-slate-700 px-3 py-2 rounded-xl text-xs font-semibold no-print">← Back</button>
                             <div>
                                 <span class="text-xs bg-emerald-100 text-emerald-800 px-2 py-0.5 rounded font-bold">${f.id}</span>
-                                <h2 class="text-lg md:text-xl font-bold text-slate-900 mt-1">${f.name} — Credit Profile</h2>
+                                <h2 class="text-lg md:text-xl font-bold text-slate-900 mt-1">${f.name} — Feed Credit Statement</h2>
                                 <p class="text-xs text-slate-500">Village: ${f.village || 'N/A'} | Mobile: ${f.phone || 'N/A'}</p>
                             </div>
                         </div>
-                        ${cb.outstandingBalance > 0 ? `<button onclick="openPayFeedModalForCustomer('${f.id}')" class="bg-emerald-600 hover:bg-emerald-700 text-white px-4 py-2.5 rounded-xl text-xs font-semibold shadow w-full sm:w-auto">Make Payment</button>` : ''}
+                        <div class="flex gap-2 w-full sm:w-auto no-print">
+                            <button onclick="window.print()" class="bg-emerald-600 hover:bg-emerald-700 text-white px-4 py-2.5 rounded-xl text-xs font-semibold shadow flex-1 sm:flex-initial">📄 Print / Download Statement PDF</button>
+                            ${cb.outstandingBalance > 0 ? `<button onclick="openPayFeedModalForCustomer('${f.id}')" class="bg-slate-900 hover:bg-slate-800 text-white px-4 py-2.5 rounded-xl text-xs font-semibold shadow flex-1 sm:flex-initial">Make Payment</button>` : ''}
+                        </div>
                     </div>
 
+                    <!-- Customer KPI Cards -->
                     <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 md:gap-4">
                         <div class="dairy-card p-4">
                             <div class="text-[11px] font-semibold text-slate-500 uppercase">Total Purchases</div>
                             <div class="text-xl md:text-2xl font-bold text-slate-900 mt-1">₹${cb.totalPurchases.toLocaleString()}</div>
                         </div>
                         <div class="dairy-card p-4">
-                            <div class="text-[11px] font-semibold text-slate-500 uppercase">Total Amount Paid</div>
+                            <div class="text-[11px] font-semibold text-slate-500 uppercase">Total Amount Paid Till Date</div>
                             <div class="text-xl md:text-2xl font-bold text-emerald-600 mt-1">₹${cb.totalPaid.toLocaleString()}</div>
                         </div>
                         <div class="dairy-card p-4">
-                            <div class="text-[11px] font-semibold text-slate-500 uppercase">Total Outstanding Balance Due</div>
+                            <div class="text-[11px] font-semibold text-slate-500 uppercase">Pending Amount (Due)</div>
                             <div class="text-xl md:text-2xl font-bold text-rose-600 mt-1">₹${cb.outstandingBalance.toLocaleString()}</div>
                         </div>
                     </div>
 
+                    <!-- Purchase History -->
                     <div class="dairy-card p-4 md:p-6 space-y-4">
-                        <h3 class="font-bold text-slate-900 text-sm md:text-base">Individual Purchase History (${cb.sales.length} orders)</h3>
+                        <h3 class="font-bold text-slate-900 text-sm md:text-base">Feed Purchase History (${cb.sales.length} orders)</h3>
                         <div class="overflow-x-auto">
                             <table class="w-full text-left border-collapse text-xs min-w-[500px]">
                                 <thead class="bg-slate-100">
@@ -944,6 +960,33 @@
                                             <td class="p-3 font-semibold">₹${s.totalAmount}</td>
                                             <td class="p-3 font-semibold text-emerald-600">₹${s.paidAmount}</td>
                                             <td class="p-3 font-bold ${s.balanceDue > 0 ? 'text-rose-600' : 'text-emerald-600'}">${s.balanceDue > 0 ? `Due: ₹${s.balanceDue}` : 'Fully Settled ✓'}</td>
+                                        </tr>
+                                    `).join('')}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <!-- Payment History -->
+                    <div class="dairy-card p-4 md:p-6 space-y-4">
+                        <h3 class="font-bold text-slate-900 text-sm md:text-base">Payment History (${cb.payments.length} payments)</h3>
+                        <div class="overflow-x-auto">
+                            <table class="w-full text-left border-collapse text-xs min-w-[400px]">
+                                <thead class="bg-slate-100">
+                                    <tr>
+                                        <th class="p-3">Payment ID</th>
+                                        <th class="p-3">Date</th>
+                                        <th class="p-3">Payment Method</th>
+                                        <th class="p-3">Amount Paid</th>
+                                    </tr>
+                                </thead>
+                                <tbody class="divide-y font-medium text-slate-700">
+                                    ${cb.payments.length === 0 ? '<tr><td colspan="4" class="p-4 text-center text-slate-500">No separate payment records found.</td></tr>' : cb.payments.map(p => `
+                                        <tr>
+                                            <td class="p-3 font-bold text-sky-700">${p.id}</td>
+                                            <td class="p-3">${p.date}</td>
+                                            <td class="p-3"><span class="px-2 py-0.5 bg-slate-100 rounded font-bold">${p.method}</span></td>
+                                            <td class="p-3 font-bold text-emerald-600">₹${p.amount}</td>
                                         </tr>
                                     `).join('')}
                                 </tbody>
@@ -1030,7 +1073,6 @@
             DEFAULT_STATE.farmers.push(newCust);
             saveState();
 
-            // Switch back to sale view and auto-select new customer
             switchModalView('sale');
             const select = document.getElementById('fs-farmer-id');
             if (select) {
@@ -1209,10 +1251,10 @@
         function renderFarmersPage() { return `<div class="dairy-card p-6"><h2 class="text-xl font-bold">Farmer Management</h2></div>`; }
         function renderMilkEntryPage() { return `<div class="dairy-card p-6"><h2 class="text-xl font-bold">Milk Entry</h2></div>`; }
         function renderRatesPage() { return `<div class="dairy-card p-6"><h2 class="text-xl font-bold">Rates</h2></div>`; }
-        function renderLedgerPage() { return `<div class="dairy-card p-6"><h2 class="text-xl font-bold">Ledger</h2></div>`; }
-        function renderPaymentsPage() { return `<div class="dairy-card p-6"><h2 class="text-xl font-bold">Payments</h2></div>`; }
-        function renderReportsPage() { return `<div class="dairy-card p-6"><h2 class="text-xl font-bold">Reports</h2></div>`; }
-        function renderAnalyticsPage() { return `<div class="dairy-card p-6"><h2 class="text-xl font-bold">Analytics</h2></div>`; }
+        function renderLedgerPage() { return `<div class="dairy-card p-6"><h2 class="text-xl font-bold">Financial Ledger</h2></div>`; }
+        function renderPaymentsPage() { return `<div class="dairy-card p-6"><h2 class="text-xl font-bold">Payment Management</h2></div>`; }
+        function renderReportsPage() { return `<div class="dairy-card p-6"><h2 class="text-xl font-bold">Professional Reports</h2></div>`; }
+        function renderAnalyticsPage() { return `<div class="dairy-card p-6"><h2 class="text-xl font-bold">Advanced Analytics</h2></div>`; }
         function renderFarmerDashboard() { return renderFeedSalesPage(); }
         function renderSettingsPage() { return `<div class="dairy-card p-6"><h2 class="text-xl font-bold">Settings</h2></div>`; }
         function attachViewListeners() {}
