@@ -21,13 +21,14 @@
             font-family: 'Inter', 'Noto Sans Tamil', sans-serif;
             background-color: var(--dairy-bg);
             color: #1e293b;
+            -webkit-tap-highlight-color: transparent;
         }
         .tamil-text {
             font-family: 'Noto Sans Tamil', sans-serif;
         }
         ::-webkit-scrollbar {
-            width: 6px;
-            height: 6px;
+            width: 5px;
+            height: 5px;
         }
         ::-webkit-scrollbar-track {
             background: #f1f5f9;
@@ -35,9 +36,6 @@
         ::-webkit-scrollbar-thumb {
             background: #cbd5e1;
             border-radius: 3px;
-        }
-        ::-webkit-scrollbar-thumb:hover {
-            background: #94a3b8;
         }
         .dairy-card {
             background: #ffffff;
@@ -57,41 +55,42 @@
             animation: fadeIn 0.3s ease-out forwards;
         }
         @media print {
-            body * {
-                visibility: hidden;
-            }
-            #printable-receipt, #printable-receipt * {
-                visibility: visible;
-            }
-            #printable-receipt {
-                position: absolute;
-                left: 0;
-                top: 0;
-                width: 100%;
-                margin: 0;
-                padding: 20px;
-                background: white;
-            }
+            body * { visibility: hidden; }
+            #printable-receipt, #printable-receipt * { visibility: visible; }
+            #printable-receipt { position: absolute; left: 0; top: 0; width: 100%; margin: 0; padding: 20px; background: white; }
         }
     </style>
 </head>
-<body class="bg-slate-50 text-slate-800 antialiased selection:bg-emerald-500 selection:text-white">
+<body class="bg-slate-50 text-slate-800 antialiased selection:bg-emerald-500 selection:text-white pb-16 md:pb-0">
 
     <!-- Application Root Container -->
-    <div id="app-root">
-        <!-- Loaded dynamically -->
+    <div id="app-root"></div>
+
+    <!-- Mobile Sticky Bottom Quick Action Bar -->
+    <div id="mobile-quick-bar" class="md:hidden fixed bottom-0 left-0 right-0 bg-white/95 backdrop-blur-md border-t border-slate-200 p-2.5 flex justify-around items-center z-45 shadow-lg hidden">
+        <button onclick="setView('feed_sales')" class="flex flex-col items-center text-slate-700 hover:text-emerald-600 text-[10px] font-bold">
+            <span class="text-lg">🌾</span> Feed Ledger
+        </button>
+        <button onclick="openFeedSaleModal()" class="flex flex-col items-center bg-emerald-600 text-white px-3 py-1.5 rounded-xl text-[11px] font-bold shadow">
+            <span class="text-base">+</span> New Sale
+        </button>
+        <button onclick="openAddCustomerFromSaleModal()" class="flex flex-col items-center text-slate-700 hover:text-emerald-600 text-[10px] font-bold">
+            <span class="text-lg">👤+</span> Add Customer
+        </button>
+        <button onclick="setView('admin_dashboard')" class="flex flex-col items-center text-slate-700 hover:text-emerald-600 text-[10px] font-bold">
+            <span class="text-lg">📊</span> Dashboard
+        </button>
     </div>
 
     <!-- Application Core Script -->
     <script>
         // Arun Traders - Milk Collection & Society Management System
-        // Complete Application Logic & State Management with Advanced Customer Credit & Balance Ledger
+        // Mobile-First Responsive Architecture with Integrated Customer Credit & Balance Management
 
         document.addEventListener('DOMContentLoaded', () => {
             initializeApp();
         });
 
-        // Initial Database & State
         const DEFAULT_STATE = {
             currentUser: null,
             currentView: 'login',
@@ -154,7 +153,7 @@
                 { id: "FS-106", farmerId: "F004", farmerName: "Meena", date: "2024-08-10", feedName: "Milky best 50kg", bags: 2, unitPrice: 1350, totalAmount: 2700, paidAmount: 2700, paymentMode: "Cash (Hand)", balanceDue: 0 },
                 { id: "FS-107", farmerId: "F005", farmerName: "Lakshmi", date: "2024-08-12", feedName: "Dairybest 70kg", bags: 3, unitPrice: 1780, totalAmount: 5340, paidAmount: 1000, paymentMode: "Partial Payment", balanceDue: 4340 }
             ],
-            feedPayments: [], // { id, farmerId, farmerName, date, amount, method }
+            feedPayments: [],
             rateCharts: [
                 { id: 1, milkType: "Cow", fatMin: 3.0, fatMax: 3.4, snf: 8.3, rate: 36.0, bonus: 1.0, deduction: 0.0, effectiveFrom: "2024-01-01" },
                 { id: 2, milkType: "Cow", fatMin: 3.5, fatMax: 3.9, snf: 8.5, rate: 40.0, bonus: 1.0, deduction: 0.0, effectiveFrom: "2024-01-01" },
@@ -233,7 +232,6 @@
             renderApp();
         }
 
-        // Helper calculations for customer credit balance (Rule 13: Total Value of All Purchases − Total Payments Received)
         function getCustomerBalance(farmerId) {
             const sales = DEFAULT_STATE.feedSales.filter(s => s.farmerId === farmerId);
             const payments = DEFAULT_STATE.feedPayments.filter(p => p.farmerId === farmerId);
@@ -247,22 +245,26 @@
 
         function renderApp() {
             const root = document.getElementById('app-root');
+            const quickBar = document.getElementById('mobile-quick-bar');
             if (!root) return;
 
             if (!DEFAULT_STATE.currentUser || DEFAULT_STATE.currentView === 'login') {
                 root.innerHTML = renderLoginPage();
+                if (quickBar) quickBar.classList.add('hidden');
                 attachLoginListeners();
                 return;
             }
+
+            if (quickBar) quickBar.classList.remove('hidden');
 
             root.innerHTML = `
                 <div class="min-h-screen flex flex-col md:flex-row bg-slate-50">
                     <aside class="hidden md:flex flex-col w-64 bg-slate-900 text-slate-100 border-r border-slate-800 shrink-0">
                         ${renderSidebarContent()}
                     </aside>
-                    <div class="md:hidden flex items-center justify-between bg-slate-900 text-white p-4 sticky top-0 z-50">
+                    <div class="md:hidden flex items-center justify-between bg-slate-900 text-white p-4 sticky top-0 z-40">
                         <div class="flex items-center space-x-2">
-                            <span class="text-xl font-bold text-emerald-400">🥛 Arun Traders</span>
+                            <span class="text-base font-bold text-emerald-400">🥛 Arun Traders</span>
                         </div>
                         <button onclick="toggleMobileMenu()" class="p-2 text-slate-300 hover:text-white">
                             <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/></svg>
@@ -280,32 +282,28 @@
                         </div>
                     </div>
                     <div class="flex-1 flex flex-col min-w-0">
-                        <header class="bg-white border-b border-slate-200 h-16 flex items-center justify-between px-6 shadow-sm">
-                            <div class="flex items-center space-x-4">
-                                <h1 class="text-lg font-bold text-slate-800 flex items-center gap-2">
+                        <header class="bg-white border-b border-slate-200 h-16 flex items-center justify-between px-4 md:px-6 shadow-sm">
+                            <div class="flex items-center space-x-2 truncate">
+                                <h1 class="text-sm md:text-lg font-bold text-slate-800 truncate">
                                     <span>${getViewTitle()}</span>
                                 </h1>
-                                <span class="hidden sm:inline-block text-xs bg-emerald-100 text-emerald-800 px-2.5 py-1 rounded-full font-medium">
-                                    ${DEFAULT_STATE.settings.companySupport}
-                                </span>
                             </div>
-                            <div class="flex items-center space-x-4">
+                            <div class="flex items-center space-x-3">
                                 <div class="text-right hidden sm:block">
                                     <div class="text-sm font-semibold text-slate-900">${DEFAULT_STATE.currentUser.name}</div>
                                     <div class="text-xs text-slate-500 capitalize font-medium">${DEFAULT_STATE.currentUser.role}</div>
                                 </div>
-                                <button onclick="handleLogout()" class="bg-rose-50 hover:bg-rose-100 text-rose-600 px-3 py-1.5 rounded-lg text-sm font-medium transition flex items-center gap-1.5">
-                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/></svg>
+                                <button onclick="handleLogout()" class="bg-rose-50 hover:bg-rose-100 text-rose-600 px-3 py-1.5 rounded-lg text-xs md:text-sm font-medium transition">
                                     Logout
                                 </button>
                             </div>
                         </header>
-                        <main class="flex-1 p-4 md:p-8 max-w-7xl w-full mx-auto animate-fade-in">
+                        <main class="flex-1 p-3 md:p-8 max-w-7xl w-full mx-auto animate-fade-in">
                             ${renderCurrentView()}
                         </main>
-                        <footer class="bg-white border-t border-slate-200 py-4 px-6 text-center text-xs text-slate-500 flex flex-col sm:flex-row justify-between items-center gap-2">
-                            <div>© ${new Date().getFullYear()} Arun Traders – Milk Collection & Society Management System</div>
-                            <div class="tamil-text text-emerald-700 font-medium">அருண் டிரேடர்ஸ் | பால் சேகரிப்பு மையம் | VKA Milk ஆதரவுடன்</div>
+                        <footer class="bg-white border-t border-slate-200 py-3 px-4 text-center text-xs text-slate-500 flex flex-col sm:flex-row justify-between items-center gap-1">
+                            <div>© ${new Date().getFullYear()} Arun Traders – Milk Collection System</div>
+                            <div class="tamil-text text-emerald-700 font-medium">அருண் டிரேடர்ஸ் | VKA Milk ஆதரவுடன்</div>
                         </footer>
                     </div>
                 </div>
@@ -314,23 +312,23 @@
         }
 
         function getViewTitle() {
+            if (DEFAULT_STATE.activeCustomerProfileId) return 'Customer Credit Profile';
             const view = DEFAULT_STATE.currentView;
-            if (DEFAULT_STATE.activeCustomerProfileId) return 'Customer Credit Profile / வாடிக்கையாளர் கடன் விவரம்';
             switch(view) {
-                case 'admin_dashboard': return 'Admin Dashboard / நிர்வாக டாஷ்போர்டு';
-                case 'operator_dashboard': return 'Operator Dashboard / ஆபரேட்டர் டாஷ்போர்டு';
-                case 'farmer_dashboard': return 'Farmer Portal / விவசாயி போர்டல்';
-                case 'farmers': return 'Farmer Management / விவசாயி மேலாண்மை';
-                case 'milk_entry': return 'Fast Milk Entry / பால் பதிவு நுழைவு';
-                case 'morning_col': return 'Morning Collections / காலை பால் சேகரிப்பு';
-                case 'evening_col': return 'Evening Collections / மாலை பால் சேகரிப்பு';
-                case 'rates': return 'Rate Chart Management / விலை பட்டியல் மேலாண்மை';
-                case 'ledger': return 'Farmer Financial Ledger / நிதி லெட்ஜர்';
-                case 'payments': return 'Payment Management / பணப் பரிமாற்றம்';
-                case 'reports': return 'Professional Reports / விரிவான அறிக்கைகள்';
-                case 'analytics': return 'Advanced Analytics / மேம்பட்ட பகுப்பாய்வு';
-                case 'feed_sales': return 'Feed Sales & Credit Ledger / தீவன விற்பனை கடன் கணக்கு';
-                case 'settings': return 'System Settings / அமைப்பு அமைப்புகள்';
+                case 'admin_dashboard': return 'Admin Dashboard';
+                case 'operator_dashboard': return 'Operator Dashboard';
+                case 'farmer_dashboard': return 'Farmer Portal';
+                case 'farmers': return 'Farmer Management';
+                case 'milk_entry': return 'Fast Milk Entry';
+                case 'morning_col': return 'Morning Collections';
+                case 'evening_col': return 'Evening Collections';
+                case 'rates': return 'Rate Chart Management';
+                case 'ledger': return 'Financial Ledger';
+                case 'payments': return 'Payment Management';
+                case 'reports': return 'Professional Reports';
+                case 'analytics': return 'Advanced Analytics';
+                case 'feed_sales': return 'Feed Sales & Credit Ledger';
+                case 'settings': return 'System Settings';
                 default: return 'Dashboard';
             }
         }
@@ -345,10 +343,10 @@
                         <span>📊</span> <span>Dashboard</span>
                     </a>
                     <a href="#" onclick="setView('farmers')" class="flex items-center space-x-3 px-4 py-3 rounded-xl text-sm font-medium ${DEFAULT_STATE.currentView === 'farmers' ? 'bg-emerald-600 text-white shadow-md' : 'text-slate-300 hover:bg-slate-800'}">
-                        <span>👨‍🌾</span> <span>Farmers (விவசாயிகள்)</span>
+                        <span>👨‍🌾</span> <span>Farmers</span>
                     </a>
                     <a href="#" onclick="setView('milk_entry')" class="flex items-center space-x-3 px-4 py-3 rounded-xl text-sm font-medium ${DEFAULT_STATE.currentView === 'milk_entry' ? 'bg-emerald-600 text-white shadow-md' : 'text-slate-300 hover:bg-slate-800'}">
-                        <span>🥛</span> <span>Fast Milk Entry</span>
+                        <span>🥛</span> <span>Milk Entry</span>
                     </a>
                     <a href="#" onclick="setView('feed_sales')" class="flex items-center space-x-3 px-4 py-3 rounded-xl text-sm font-medium ${DEFAULT_STATE.currentView === 'feed_sales' ? 'bg-emerald-600 text-white shadow-md' : 'text-slate-300 hover:bg-slate-800'}">
                         <span>🌾</span> <span>Feed Sales & Credit</span>
@@ -360,23 +358,23 @@
                         <span>🌇</span> <span>Evening Collection</span>
                     </a>
                     <a href="#" onclick="setView('rates')" class="flex items-center space-x-3 px-4 py-3 rounded-xl text-sm font-medium ${DEFAULT_STATE.currentView === 'rates' ? 'bg-emerald-600 text-white shadow-md' : 'text-slate-300 hover:bg-slate-800'}">
-                        <span>📋</span> <span>Rate Chart (விலை விபரம்)</span>
+                        <span>📋</span> <span>Rate Chart</span>
                     </a>
                     <a href="#" onclick="setView('ledger')" class="flex items-center space-x-3 px-4 py-3 rounded-xl text-sm font-medium ${DEFAULT_STATE.currentView === 'ledger' ? 'bg-emerald-600 text-white shadow-md' : 'text-slate-300 hover:bg-slate-800'}">
                         <span>📖</span> <span>Financial Ledger</span>
                     </a>
                     <a href="#" onclick="setView('payments')" class="flex items-center space-x-3 px-4 py-3 rounded-xl text-sm font-medium ${DEFAULT_STATE.currentView === 'payments' ? 'bg-emerald-600 text-white shadow-md' : 'text-slate-300 hover:bg-slate-800'}">
-                        <span>💰</span> <span>Payments (பணம்)</span>
+                        <span>💰</span> <span>Payments</span>
                     </a>
                     <a href="#" onclick="setView('reports')" class="flex items-center space-x-3 px-4 py-3 rounded-xl text-sm font-medium ${DEFAULT_STATE.currentView === 'reports' ? 'bg-emerald-600 text-white shadow-md' : 'text-slate-300 hover:bg-slate-800'}">
-                        <span>📈</span> <span>Reports (அறிக்கைகள்)</span>
+                        <span>📈</span> <span>Reports</span>
                     </a>
                     <a href="#" onclick="setView('analytics')" class="flex items-center space-x-3 px-4 py-3 rounded-xl text-sm font-medium ${DEFAULT_STATE.currentView === 'analytics' ? 'bg-emerald-600 text-white shadow-md' : 'text-slate-300 hover:bg-slate-800'}">
-                        <span>🔍</span> <span>Analytics & Insights</span>
+                        <span>🔍</span> <span>Analytics</span>
                     </a>
                     ${role === 'admin' ? `
                     <a href="#" onclick="setView('settings')" class="flex items-center space-x-3 px-4 py-3 rounded-xl text-sm font-medium ${DEFAULT_STATE.currentView === 'settings' ? 'bg-emerald-600 text-white shadow-md' : 'text-slate-300 hover:bg-slate-800'}">
-                        <span>⚙️</span> <span>Settings (அமைப்புகள்)</span>
+                        <span>⚙️</span> <span>Settings</span>
                     </a>` : ''}
                 `;
             } else if (role === 'farmer') {
@@ -399,10 +397,6 @@
                 <nav class="flex-1 p-4 space-y-1 overflow-y-auto">
                     ${navItems}
                 </nav>
-                <div class="p-4 border-t border-slate-800 text-xs text-slate-400">
-                    <div class="font-medium text-slate-200">${DEFAULT_STATE.settings.companySupport}</div>
-                    <div class="tamil-text text-emerald-400 mt-0.5">VKA Milk ஆதரவுடன்</div>
-                </div>
             `;
         }
 
@@ -417,26 +411,22 @@
         function renderLoginPage() {
             return `
                 <div class="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-900 via-emerald-950 to-sky-950 p-4">
-                    <div class="max-w-md w-full bg-white/95 backdrop-blur-md rounded-2xl shadow-2xl overflow-hidden border border-white/20 p-8">
-                        <div class="text-center mb-8">
-                            <div class="inline-flex items-center justify-center w-16 h-16 bg-emerald-100 text-emerald-600 rounded-full text-3xl mb-3 shadow-inner">
+                    <div class="max-w-md w-full bg-white/95 backdrop-blur-md rounded-2xl shadow-2xl overflow-hidden border border-white/20 p-6 md:p-8">
+                        <div class="text-center mb-6">
+                            <div class="inline-flex items-center justify-center w-14 h-14 bg-emerald-100 text-emerald-600 rounded-full text-2xl mb-2 shadow-inner">
                                 🥛
                             </div>
-                            <h2 class="text-2xl font-bold text-slate-900 tracking-tight">Arun Traders</h2>
-                            <p class="text-sm font-medium text-slate-600 mt-1">Milk Collection & Society Management System</p>
+                            <h2 class="text-xl md:text-2xl font-bold text-slate-900 tracking-tight">Arun Traders</h2>
+                            <p class="text-xs md:text-sm font-medium text-slate-600 mt-1">Milk Collection & Society Management System</p>
                             <div class="mt-2 inline-block bg-emerald-600 text-white text-xs px-3 py-1 rounded-full font-semibold shadow">
                                 ${DEFAULT_STATE.settings.companySupport}
                             </div>
-                            <div class="tamil-text text-emerald-700 font-bold text-sm mt-2">
-                                அருண் டிரேடர்ஸ் • பால் சேகரிப்பு மையம்<br>
-                                <span class="text-xs font-normal text-slate-600">VKA Milk ஆதரவுடன்</span>
-                            </div>
                         </div>
 
-                        <form id="login-form" class="space-y-4">
+                        <form id="login-form" class="space-y-4 text-xs md:text-sm">
                             <div>
-                                <label class="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-1">Login Role</label>
-                                <select id="login-role" class="w-full px-4 py-2.5 rounded-xl border border-slate-300 focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 bg-slate-50 text-slate-800 text-sm font-medium" onchange="toggleFarmerInput(this.value)">
+                                <label class="block font-semibold text-slate-700 uppercase tracking-wider mb-1">Login Role</label>
+                                <select id="login-role" class="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 bg-slate-50 font-medium" onchange="toggleFarmerInput(this.value)">
                                     <option value="admin">Admin / Society Owner</option>
                                     <option value="operator">Collection Operator</option>
                                     <option value="farmer">Farmer / Milk Supplier</option>
@@ -444,33 +434,33 @@
                             </div>
 
                             <div id="username-container">
-                                <label class="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-1">Username / Mobile Number</label>
-                                <input type="text" id="login-username" value="admin" required class="w-full px-4 py-2.5 rounded-xl border border-slate-300 focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 bg-slate-50 text-slate-800 text-sm" placeholder="Enter username or mobile">
+                                <label class="block font-semibold text-slate-700 uppercase tracking-wider mb-1">Username / Mobile</label>
+                                <input type="text" id="login-username" value="admin" required class="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 bg-slate-50">
                             </div>
 
                             <div id="farmer-id-container" class="hidden">
-                                <label class="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-1">Select Farmer</label>
-                                <select id="login-farmer-id" class="w-full px-4 py-2.5 rounded-xl border border-slate-300 focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 bg-slate-50 text-slate-800 text-sm">
+                                <label class="block font-semibold text-slate-700 uppercase tracking-wider mb-1">Select Farmer</label>
+                                <select id="login-farmer-id" class="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 bg-slate-50">
                                     ${DEFAULT_STATE.farmers.map(f => `<option value="${f.id}">${f.id} - ${f.name} (${f.village})</option>`).join('')}
                                 </select>
                             </div>
 
                             <div>
-                                <label class="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-1">Password</label>
-                                <input type="password" id="login-password" value="admin123" required class="w-full px-4 py-2.5 rounded-xl border border-slate-300 focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 bg-slate-50 text-slate-800 text-sm" placeholder="••••••••">
+                                <label class="block font-semibold text-slate-700 uppercase tracking-wider mb-1">Password</label>
+                                <input type="password" id="login-password" value="admin123" required class="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 bg-slate-50" placeholder="••••••••">
                             </div>
 
-                            <button type="submit" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-semibold py-3 rounded-xl transition shadow-lg shadow-emerald-600/30 text-sm">
+                            <button type="submit" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-semibold py-3 rounded-xl transition shadow-lg shadow-emerald-600/30">
                                 Login to Dashboard
                             </button>
                         </form>
 
                         <div class="mt-6 pt-6 border-t border-slate-100">
-                            <p class="text-xs text-center text-slate-500 mb-3 font-medium">Quick Demo Access (Click to Test):</p>
+                            <p class="text-xs text-center text-slate-500 mb-3 font-medium">Quick Demo Access:</p>
                             <div class="grid grid-cols-3 gap-2">
-                                <button onclick="handleLogin('admin')" class="bg-slate-100 hover:bg-emerald-50 text-slate-700 hover:text-emerald-700 py-2 rounded-lg text-xs font-semibold transition border border-slate-200">Admin</button>
-                                <button onclick="handleLogin('operator')" class="bg-slate-100 hover:bg-emerald-50 text-slate-700 hover:text-emerald-700 py-2 rounded-lg text-xs font-semibold transition border border-slate-200">Operator</button>
-                                <button onclick="handleLogin('farmer', '', 'F001')" class="bg-slate-100 hover:bg-emerald-50 text-slate-700 hover:text-emerald-700 py-2 rounded-lg text-xs font-semibold transition border border-slate-200">Farmer</button>
+                                <button onclick="handleLogin('admin')" class="bg-slate-100 hover:bg-emerald-50 text-slate-700 py-2 rounded-lg text-xs font-semibold border">Admin</button>
+                                <button onclick="handleLogin('operator')" class="bg-slate-100 hover:bg-emerald-50 text-slate-700 py-2 rounded-lg text-xs font-semibold border">Operator</button>
+                                <button onclick="handleLogin('farmer', '', 'F001')" class="bg-slate-100 hover:bg-emerald-50 text-slate-700 py-2 rounded-lg text-xs font-semibold border">Farmer</button>
                             </div>
                         </div>
                     </div>
@@ -547,34 +537,33 @@
         function renderDashboard() {
             const totalFarmers = DEFAULT_STATE.farmers.length;
             const todayCols = DEFAULT_STATE.collections.filter(c => c.date === '2024-05-20');
-            const activeToday = new Set(todayCols.map(c => c.farmerId)).size;
             const totalMilk = todayCols.reduce((acc, c) => acc + c.litres, 0);
             const totalAmount = todayCols.reduce((acc, c) => acc + c.amount, 0);
-
-            // Total feed pending credit across all customers
             const totalFeedDue = DEFAULT_STATE.feedSales.reduce((acc, s) => acc + s.balanceDue, 0);
 
             return `
                 <div class="space-y-6">
-                    <div class="bg-gradient-to-r from-emerald-600 to-teal-700 rounded-2xl p-6 text-white shadow-lg flex justify-between items-center">
+                    <div class="bg-gradient-to-r from-emerald-600 to-teal-700 rounded-2xl p-5 md:p-6 text-white shadow-lg flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
                         <div>
                             <div class="text-xs uppercase tracking-wider font-semibold text-emerald-200">Arun Traders • Society Management</div>
-                            <h2 class="text-2xl font-bold mt-1">Today's Milk Collection & Feed Credit Overview</h2>
+                            <h2 class="text-xl md:text-2xl font-bold mt-1">Today's Milk Collection & Feed Credit Overview</h2>
                         </div>
-                        <button onclick="setView('feed_sales')" class="bg-white text-emerald-700 hover:bg-emerald-50 px-4 py-2.5 rounded-xl text-sm font-semibold shadow">🌾 Feed Sales & Credit Ledger</button>
+                        <button onclick="setView('feed_sales')" class="bg-white text-emerald-700 hover:bg-emerald-50 px-4 py-2.5 rounded-xl text-xs md:text-sm font-semibold shadow w-full sm:w-auto text-center">🌾 Feed Sales & Credit Ledger</button>
                     </div>
-                    <div class="grid grid-cols-1 sm:grid-cols-4 gap-4">
-                        <div class="dairy-card p-5"><div class="text-xs text-slate-500 uppercase">Total Farmers</div><h3 class="text-2xl font-bold text-slate-900 mt-1">${totalFarmers}</h3></div>
-                        <div class="dairy-card p-5"><div class="text-xs text-slate-500 uppercase">Today's Total Milk</div><h3 class="text-2xl font-bold text-slate-900 mt-1">${totalMilk} L</h3></div>
-                        <div class="dairy-card p-5"><div class="text-xs text-slate-500 uppercase">Today's Amount</div><h3 class="text-2xl font-bold text-emerald-600 mt-1">₹${totalAmount}</h3></div>
-                        <div class="dairy-card p-5"><div class="text-xs text-slate-500 uppercase">Total Feed Credit Due</div><h3 class="text-2xl font-bold text-amber-600 mt-1">₹${totalFeedDue.toLocaleString()}</h3></div>
+                    <div class="grid grid-cols-2 lg:grid-cols-4 gap-3 md:gap-4">
+                        <div class="dairy-card p-4"><div class="text-[11px] text-slate-500 uppercase font-semibold">Total Farmers</div><h3 class="text-xl md:text-2xl font-bold text-slate-900 mt-1">${totalFarmers}</h3></div>
+                        <div class="dairy-card p-4"><div class="text-[11px] text-slate-500 uppercase font-semibold">Today's Milk</div><h3 class="text-xl md:text-2xl font-bold text-slate-900 mt-1">${totalMilk} L</h3></div>
+                        <div class="dairy-card p-4"><div class="text-[11px] text-slate-500 uppercase font-semibold">Today's Amount</div><h3 class="text-xl md:text-2xl font-bold text-emerald-600 mt-1">₹${totalAmount}</h3></div>
+                        <div class="dairy-card p-4"><div class="text-[11px] text-slate-500 uppercase font-semibold">Feed Credit Due</div><h3 class="text-xl md:text-2xl font-bold text-amber-600 mt-1">₹${totalFeedDue.toLocaleString()}</h3></div>
                     </div>
-                    <div class="dairy-card p-6">
-                        <h3 class="font-bold text-slate-900 mb-4">Today's Collection Records</h3>
-                        <table class="w-full text-left text-xs">
-                            <thead class="bg-slate-100"><tr><th class="p-3">ID</th><th class="p-3">Farmer</th><th class="p-3">Shift</th><th class="p-3">Litres</th><th class="p-3">Amount</th></tr></thead>
-                            <tbody class="divide-y">${todayCols.map(c => `<tr><td class="p-3 font-bold">${c.id}</td><td class="p-3">${c.farmerName}</td><td class="p-3">${c.shift}</td><td class="p-3">${c.litres} L</td><td class="p-3 text-emerald-600 font-bold">₹${c.amount}</td></tr>`).join('')}</tbody>
-                        </table>
+                    <div class="dairy-card p-4 md:p-6 overflow-hidden">
+                        <h3 class="font-bold text-slate-900 mb-3 text-sm md:text-base">Today's Collection Records</h3>
+                        <div class="overflow-x-auto">
+                            <table class="w-full text-left text-xs min-w-[400px]">
+                                <thead class="bg-slate-100"><tr><th class="p-2.5">ID</th><th class="p-2.5">Farmer</th><th class="p-2.5">Shift</th><th class="p-2.5">Litres</th><th class="p-2.5">Amount</th></tr></thead>
+                                <tbody class="divide-y">${todayCols.map(c => `<tr><td class="p-2.5 font-bold">${c.id}</td><td class="p-2.5">${c.farmerName}</td><td class="p-2.5">${c.shift}</td><td class="p-2.5">${c.litres} L</td><td class="p-2.5 text-emerald-600 font-bold">₹${c.amount}</td></tr>`).join('')}</tbody>
+                            </table>
+                        </div>
                     </div>
                 </div>
             `;
@@ -597,7 +586,6 @@
             const totalPaid = sales.reduce((acc, s) => acc + s.paidAmount, 0) + DEFAULT_STATE.feedPayments.reduce((acc, p) => acc + p.amount, 0);
             const totalPendingDue = sales.reduce((acc, s) => acc + s.balanceDue, 0);
 
-            // Group by customer for quick summary
             const customerMap = {};
             DEFAULT_STATE.feedSales.forEach(s => {
                 if (!customerMap[s.farmerId]) {
@@ -617,43 +605,43 @@
 
             return `
                 <div class="space-y-6">
-                    <div class="bg-gradient-to-r from-emerald-600 to-teal-700 rounded-2xl p-6 text-white shadow-lg flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+                    <div class="bg-gradient-to-r from-emerald-600 to-teal-700 rounded-2xl p-5 md:p-6 text-white shadow-lg flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
                         <div>
                             <div class="text-xs uppercase tracking-wider font-semibold text-emerald-200">Arun Traders • Cattle Feed Management</div>
-                            <h2 class="text-2xl font-bold mt-1">🌾 Feed Sales & Credit Ledger (தீவன விற்பனை கடன் கணக்கு)</h2>
-                            <p class="text-sm text-emerald-100 mt-1">Nutribest, Lactobest, Milky best, Dairybest & Delite distribution & running credit ledger.</p>
+                            <h2 class="text-xl md:text-2xl font-bold mt-1">🌾 Feed Sales & Credit Ledger</h2>
+                            <p class="text-xs md:text-sm text-emerald-100 mt-1">Nutribest, Lactobest, Milky best, Dairybest & Delite distribution & credit ledger.</p>
                         </div>
                         ${!isFarmer ? `
-                        <button onclick="openFeedSaleModal()" class="bg-white text-emerald-700 hover:bg-emerald-50 px-4 py-2.5 rounded-xl text-sm font-semibold shadow transition flex items-center gap-2">
+                        <button onclick="openFeedSaleModal()" class="bg-white text-emerald-700 hover:bg-emerald-50 px-4 py-2.5 rounded-xl text-xs md:text-sm font-semibold shadow transition flex items-center justify-center gap-2 w-full md:w-auto">
                             <span>+</span> New Feed Sale / Credit Entry
                         </button>` : ''}
                     </div>
 
                     <!-- KPI Cards -->
-                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                        <div class="dairy-card p-5">
-                            <div class="text-xs font-semibold text-slate-500 uppercase">Total Feed Purchases</div>
-                            <div class="text-2xl font-bold text-slate-900 mt-1">₹${totalFeedSales.toLocaleString()}</div>
+                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 md:gap-4">
+                        <div class="dairy-card p-4">
+                            <div class="text-[11px] font-semibold text-slate-500 uppercase">Total Feed Purchases</div>
+                            <div class="text-xl md:text-2xl font-bold text-slate-900 mt-1">₹${totalFeedSales.toLocaleString()}</div>
                         </div>
-                        <div class="dairy-card p-5">
-                            <div class="text-xs font-semibold text-slate-500 uppercase">Total Amount Paid</div>
-                            <div class="text-2xl font-bold text-emerald-600 mt-1">₹${totalPaid.toLocaleString()}</div>
+                        <div class="dairy-card p-4">
+                            <div class="text-[11px] font-semibold text-slate-500 uppercase">Total Amount Paid</div>
+                            <div class="text-xl md:text-2xl font-bold text-emerald-600 mt-1">₹${totalPaid.toLocaleString()}</div>
                         </div>
-                        <div class="dairy-card p-5">
-                            <div class="text-xs font-semibold text-slate-500 uppercase">Total Outstanding Balance Due</div>
-                            <div class="text-2xl font-bold text-amber-600 mt-1">₹${totalPendingDue.toLocaleString()}</div>
+                        <div class="dairy-card p-4">
+                            <div class="text-[11px] font-semibold text-slate-500 uppercase">Total Outstanding Balance Due</div>
+                            <div class="text-xl md:text-2xl font-bold text-amber-600 mt-1">₹${totalPendingDue.toLocaleString()}</div>
                         </div>
                     </div>
 
                     <!-- Available Feed Varieties -->
-                    <div class="dairy-card p-6">
-                        <h3 class="font-bold text-slate-900 text-base mb-3">🏷️ Available Cattle Feed Varieties & Pricing</h3>
-                        <div class="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-6 gap-3">
+                    <div class="dairy-card p-4 md:p-6">
+                        <h3 class="font-bold text-slate-900 text-sm md:text-base mb-3">🏷️ Available Feed Varieties & Pricing</h3>
+                        <div class="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-6 gap-2.5">
                             ${DEFAULT_STATE.feedProducts.map(p => `
-                                <div class="bg-slate-50 p-3 rounded-xl border text-xs">
-                                    <div class="font-bold text-slate-900">${p.name}</div>
+                                <div class="bg-slate-50 p-2.5 rounded-xl border text-xs">
+                                    <div class="font-bold text-slate-900 truncate">${p.name}</div>
                                     <div class="text-[10px] text-emerald-700">${p.category}</div>
-                                    <div class="font-extrabold text-emerald-600 text-sm mt-1">₹${p.price}</div>
+                                    <div class="font-extrabold text-emerald-600 text-xs mt-1">₹${p.price}</div>
                                 </div>
                             `).join('')}
                         </div>
@@ -661,63 +649,65 @@
 
                     ${!isFarmer ? `
                     <!-- Customer Balances Summary -->
-                    <div class="dairy-card overflow-hidden p-6">
-                        <h3 class="font-bold text-slate-900 text-base mb-4">👥 Customer Credit Balances (வாடிக்கையாளர் கடன் நிலுவை)</h3>
-                        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                    <div class="dairy-card p-4 md:p-6">
+                        <h3 class="font-bold text-slate-900 text-sm md:text-base mb-4">👥 Customer Credit Balances</h3>
+                        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
                             ${customersSummary.map(cs => `
-                                <div class="bg-slate-50 p-4 rounded-xl border flex flex-col justify-between gap-3">
+                                <div class="bg-slate-50 p-3.5 rounded-xl border flex flex-col justify-between gap-3 text-xs">
                                     <div class="flex justify-between items-start">
                                         <div>
                                             <span class="text-[10px] bg-emerald-100 text-emerald-800 px-2 py-0.5 rounded font-bold">${cs.farmerId}</span>
-                                            <h4 class="font-bold text-slate-900 text-base mt-1">${cs.farmerName}</h4>
+                                            <h4 class="font-bold text-slate-900 text-sm mt-1">${cs.farmerName}</h4>
                                         </div>
-                                        <button onclick="viewCustomerCreditProfile('${cs.farmerId}')" class="bg-sky-50 hover:bg-sky-100 text-sky-700 px-3 py-1 rounded-lg text-xs font-semibold">View Profile</button>
+                                        <button onclick="viewCustomerCreditProfile('${cs.farmerId}')" class="bg-sky-50 hover:bg-sky-100 text-sky-700 px-2.5 py-1 rounded-lg font-semibold">View Profile</button>
                                     </div>
-                                    <div class="grid grid-cols-3 gap-2 text-center bg-white p-2.5 rounded-lg border text-xs">
-                                        <div><div class="text-[10px] text-slate-500">Purchases</div><div class="font-bold">₹${cs.totalPurchases}</div></div>
-                                        <div><div class="text-[10px] text-slate-500">Paid</div><div class="font-bold text-emerald-600">₹${cs.totalPaid}</div></div>
-                                        <div><div class="text-[10px] text-slate-500">Due</div><div class="font-bold text-rose-600">₹${cs.balanceDue}</div></div>
+                                    <div class="grid grid-cols-3 gap-1 text-center bg-white p-2 rounded-lg border">
+                                        <div><div class="text-[9px] text-slate-500">Purchases</div><div class="font-bold">₹${cs.totalPurchases}</div></div>
+                                        <div><div class="text-[9px] text-slate-500">Paid</div><div class="font-bold text-emerald-600">₹${cs.totalPaid}</div></div>
+                                        <div><div class="text-[9px] text-slate-500">Due</div><div class="font-bold text-rose-600">₹${cs.balanceDue}</div></div>
                                     </div>
-                                    ${cs.balanceDue > 0 ? `<button onclick="openPayFeedModalForCustomer('${cs.farmerId}')" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white py-2 rounded-lg text-xs font-semibold shadow">Make Payment / Clear Due</button>` : '<div class="text-center text-xs text-emerald-600 font-bold py-1">All Dues Settled ✓</div>'}
+                                    ${cs.balanceDue > 0 ? `<button onclick="openPayFeedModalForCustomer('${cs.farmerId}')" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white py-2 rounded-lg font-semibold shadow text-xs">Make Payment / Clear Due</button>` : '<div class="text-center text-emerald-600 font-bold py-1">All Dues Settled ✓</div>'}
                                 </div>
                             `).join('')}
                         </div>
                     </div>` : ''}
 
-                    <!-- Feed Sales & Credit Transactions Ledger -->
+                    <!-- Feed Sales & Credit Transactions Ledger (Responsive Stacked Cards on Mobile) -->
                     <div class="dairy-card overflow-hidden">
-                        <div class="p-4 border-b flex flex-col sm:flex-row justify-between items-center gap-4">
-                            <h3 class="font-bold text-slate-900 text-base">Complete Feed Sales & Payment Ledger (${sales.length} transactions)</h3>
-                            <input type="text" id="feed-search" placeholder="Search farmer or feed..." onkeyup="filterFeedTable()" class="px-3 py-2 border rounded-xl text-xs bg-slate-50 w-full sm:w-64">
+                        <div class="p-4 border-b flex flex-col sm:flex-row justify-between items-center gap-3">
+                            <h3 class="font-bold text-slate-900 text-sm md:text-base">Complete Feed Sales Ledger (${sales.length})</h3>
+                            <input type="text" id="feed-search" placeholder="Search customer..." onkeyup="filterFeedTable()" class="px-3 py-2 border rounded-xl text-xs bg-slate-50 w-full sm:w-64">
                         </div>
-                        <div class="overflow-x-auto">
+
+                        <!-- Desktop Table -->
+                        <div class="hidden md:block overflow-x-auto">
                             <table class="w-full text-left border-collapse text-xs">
                                 <thead class="bg-slate-100/70 text-slate-700 uppercase font-semibold text-[11px]">
                                     <tr>
-                                        <th class="p-4">Tx ID & Date</th>
-                                        <th class="p-4">Customer Name</th>
-                                        <th class="p-4">Feed Variety</th>
-                                        <th class="p-4">Bags</th>
-                                        <th class="p-4">Total Amount</th>
-                                        <th class="p-4">Paid at Purchase</th>
-                                        <th class="p-4">Payment Mode</th>
-                                        <th class="p-4 font-bold text-amber-700">Remaining Balance</th>
-                                        ${!isFarmer ? '<th class="p-4 text-right">Action</th>' : ''}
+                                        <th class="p-3.5">Tx ID & Date</th>
+                                        <th class="p-3.5">Customer Name</th>
+                                        <th class="p-3.5">Feed Variety</th>
+                                        <th class="p-3.5">Bags</th>
+                                        <th class="p-3.5">Total</th>
+                                        <th class="p-3.5">Paid</th>
+                                        <th class="p-3.5">Mode</th>
+                                        <th class="p-3.5 font-bold text-amber-700">Balance Due</th>
+                                        ${!isFarmer ? '<th class="p-3.5 text-right">Action</th>' : ''}
                                     </tr>
                                 </thead>
                                 <tbody id="feed-table-body" class="divide-y text-slate-700 font-medium">
                                     ${sales.map(s => `
                                         <tr class="hover:bg-slate-50">
-                                            <td class="p-4 font-bold text-emerald-700">${s.id}<br><span class="text-[10px] text-slate-400 font-normal">${s.date}</span></td>
-                                            <td class="p-4 font-bold text-slate-900 cursor-pointer hover:underline text-sky-700" onclick="viewCustomerCreditProfile('${s.farmerId}')">${s.farmerName} (${s.farmerId})</td>
-                                            <td class="p-4">${s.feedName}</td>
-                                            <td class="p-4 font-bold">${s.bags} bags</td>
-                                            <td class="p-4 font-semibold text-slate-900">₹${s.totalAmount}</td>
-                                            <td class="p-4 font-semibold text-emerald-600">₹${s.paidAmount}</td>
-                                            <td class="p-4"><span class="px-2 py-0.5 rounded text-[10px] font-bold ${s.paymentMode.includes('Cash') ? 'bg-amber-100 text-amber-800' : s.paymentMode.includes('Online') ? 'bg-sky-100 text-sky-800' : 'bg-rose-100 text-rose-800'}">${s.paymentMode}</span></td>
-                                            <td class="p-4 font-extrabold ${s.balanceDue > 0 ? 'text-rose-600' : 'text-emerald-600'}">₹${s.balanceDue}</td>
+                                            <td class="p-3.5 font-bold text-emerald-700">${s.id}<br><span class="text-[10px] text-slate-400 font-normal">${s.date}</span></td>
+                                            <td class="p-3.5 font-bold text-slate-900 cursor-pointer hover:underline text-sky-700" onclick="viewCustomerCreditProfile('${s.farmerId}')">${s.farmerName} (${s.farmerId})</td>
+                                            <td class="p-3.5">${s.feedName}</td>
+                                            <td class="p-3.5 font-bold">${s.bags} bags</td>
+                                            <td class="p-3.5 font-semibold text-slate-900">₹${s.totalAmount}</td>
+                                            <td class="p-3.5 font-semibold text-emerald-600">₹${s.paidAmount}</td>
+                                            <td class="p-3.5"><span class="px-2 py-0.5 rounded text-[10px] font-bold ${s.paymentMode.includes('Cash') ? 'bg-amber-100 text-amber-800' : s.paymentMode.includes('Online') ? 'bg-sky-100 text-sky-800' : 'bg-rose-100 text-rose-800'}">${s.paymentMode}</span></td>
+                                            <td class="p-3.5 font-extrabold ${s.balanceDue > 0 ? 'text-rose-600' : 'text-emerald-600'}">₹${s.balanceDue}</td>
                                             ${!isFarmer ? `
-                                            <td class="p-4 text-right">
+                                            <td class="p-3.5 text-right">
                                                 ${s.balanceDue > 0 ? `<button onclick="openPayFeedModal('${s.id}')" class="bg-emerald-600 hover:bg-emerald-700 text-white px-3 py-1 rounded-lg text-xs font-semibold">Clear Due</button>` : '<span class="text-emerald-600 font-bold">Settled ✓</span>'}
                                             </td>` : ''}
                                         </tr>
@@ -725,52 +715,80 @@
                                 </tbody>
                             </table>
                         </div>
+
+                        <!-- Mobile Stacked Card View -->
+                        <div class="md:hidden divide-y divide-slate-100 text-xs" id="feed-mobile-list">
+                            ${sales.map(s => `
+                                <div class="p-3.5 space-y-2 feed-mobile-item">
+                                    <div class="flex justify-between items-center">
+                                        <span class="font-bold text-emerald-700">${s.id} (${s.date})</span>
+                                        <span class="px-2 py-0.5 rounded text-[10px] font-bold ${s.paymentMode.includes('Cash') ? 'bg-amber-100 text-amber-800' : s.paymentMode.includes('Online') ? 'bg-sky-100 text-sky-800' : 'bg-rose-100 text-rose-800'}">${s.paymentMode}</span>
+                                    </div>
+                                    <div class="flex justify-between items-center font-bold text-slate-900 text-sm">
+                                        <span onclick="viewCustomerCreditProfile('${s.farmerId}')" class="text-sky-700 underline">${s.farmerName}</span>
+                                        <span>₹${s.totalAmount}</span>
+                                    </div>
+                                    <div class="text-slate-600">${s.feedName} — <b>${s.bags} bags</b></div>
+                                    <div class="flex justify-between items-center pt-1 border-t border-dashed">
+                                        <div>Paid: <span class="text-emerald-600 font-bold">₹${s.paidAmount}</span> | Due: <span class="text-rose-600 font-bold">₹${s.balanceDue}</span></div>
+                                        ${!isFarmer && s.balanceDue > 0 ? `<button onclick="openPayFeedModal('${s.id}')" class="bg-emerald-600 text-white px-3 py-1.5 rounded-lg text-xs font-semibold">Clear Due</button>` : ''}
+                                    </div>
+                                </div>
+                            `).join('')}
+                        </div>
                     </div>
                 </div>
 
-                <!-- New Feed Sale Modal -->
-                <div id="feed-sale-modal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm hidden items-center justify-center p-4 z-50">
-                    <div class="bg-white rounded-2xl max-w-lg w-full p-6 shadow-2xl max-h-[90vh] overflow-y-auto">
+                <!-- New Feed Sale Modal (with + Add New Customer option) -->
+                <div id="feed-sale-modal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm hidden items-center justify-center p-3 z-50">
+                    <div class="bg-white rounded-2xl max-w-lg w-full p-5 md:p-6 shadow-2xl max-h-[95vh] overflow-y-auto">
                         <div class="flex justify-between items-center mb-4 border-b pb-3">
-                            <h3 class="text-lg font-bold text-slate-900">New Feed Sale & Credit Entry (தீவன விற்பனை பதிவு)</h3>
+                            <h3 class="text-base md:text-lg font-bold text-slate-900">New Feed Sale & Credit Entry</h3>
                             <button onclick="closeFeedSaleModal()" class="text-slate-400 hover:text-slate-700 font-bold text-xl">✕</button>
                         </div>
-                        <form id="feed-sale-form" onsubmit="submitFeedSale(event)" class="space-y-4 text-xs">
+                        <form id="feed-sale-form" onsubmit="submitFeedSale(event)" class="space-y-4 text-xs md:text-sm">
                             <div>
                                 <label class="block font-semibold text-slate-700 mb-1">Select Customer / Farmer</label>
-                                <select id="fs-farmer-id" required class="w-full px-3 py-2.5 border rounded-xl bg-slate-50 font-medium">
+                                <select id="fs-farmer-id" onchange="handleCustomerSelectChange(this.value)" required class="w-full px-3.5 py-2.5 border rounded-xl bg-slate-50 font-medium">
+                                    <option value="" disabled selected>-- Select Customer --</option>
+                                    <option value="ADD_NEW" class="font-bold text-emerald-700 bg-emerald-50">➕ + Add New Customer</option>
                                     ${DEFAULT_STATE.farmers.map(f => `<option value="${f.id}">${f.id} - ${f.name} (${f.village})</option>`).join('')}
                                 </select>
                             </div>
 
-                            <div class="grid grid-cols-2 gap-4">
+                            <!-- Display Existing Outstanding Balance if customer selected (Rule 4) -->
+                            <div id="existing-balance-banner" class="hidden bg-amber-50 border border-amber-200 p-3 rounded-xl text-amber-900 text-xs">
+                                ⚠️ <span class="font-bold" id="banner-customer-name">Customer</span> has an existing outstanding balance of <span class="font-extrabold text-rose-600" id="banner-customer-due">₹0</span>.
+                            </div>
+
+                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                                 <div>
                                     <label class="block font-semibold text-slate-700 mb-1">Select Feed Variety</label>
-                                    <select id="fs-feed-id" onchange="updateFeedSaleCalc()" required class="w-full px-3 py-2.5 border rounded-xl bg-slate-50 font-medium">
+                                    <select id="fs-feed-id" onchange="updateFeedSaleCalc()" required class="w-full px-3.5 py-2.5 border rounded-xl bg-slate-50 font-medium">
                                         ${DEFAULT_STATE.feedProducts.map(p => `<option value="${p.id}" data-price="${p.price}">${p.name} (₹${p.price})</option>`).join('')}
                                     </select>
                                 </div>
                                 <div>
                                     <label class="block font-semibold text-slate-700 mb-1">Number of Bags</label>
-                                    <input type="number" id="fs-bags" value="1" min="1" required oninput="updateFeedSaleCalc()" class="w-full px-3 py-2.5 border rounded-xl bg-slate-50 font-bold">
+                                    <input type="number" id="fs-bags" value="1" min="1" required oninput="updateFeedSaleCalc()" class="w-full px-3.5 py-2.5 border rounded-xl bg-slate-50 font-bold">
                                 </div>
                             </div>
 
-                            <div class="grid grid-cols-2 gap-4 bg-slate-50 p-4 rounded-xl border">
+                            <div class="grid grid-cols-2 gap-3 bg-slate-50 p-3.5 rounded-xl border">
                                 <div>
-                                    <span class="text-slate-500 font-medium">Total Feed Bill:</span>
-                                    <div class="text-xl font-bold text-slate-900 mt-0.5">₹<span id="fs-display-total">1450</span></div>
+                                    <span class="text-slate-500 font-medium text-[11px]">Total Feed Bill:</span>
+                                    <div class="text-lg font-bold text-slate-900 mt-0.5">₹<span id="fs-display-total">1450</span></div>
                                 </div>
                                 <div>
-                                    <label class="block font-semibold text-slate-700 mb-1">Amount Paid Now (₹)</label>
-                                    <input type="number" id="fs-paid" value="0" min="0" required oninput="updateFeedSaleCalc()" class="w-full px-2.5 py-2 border rounded-xl bg-white font-bold text-emerald-600">
+                                    <label class="block font-semibold text-slate-700 mb-1 text-[11px]">Amount Paid Now (₹)</label>
+                                    <input type="number" id="fs-paid" value="0" min="0" required oninput="updateFeedSaleCalc()" class="w-full px-2.5 py-2 border rounded-xl bg-white font-bold text-emerald-600 text-sm">
                                 </div>
                             </div>
 
-                            <div class="grid grid-cols-2 gap-4">
+                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                                 <div>
                                     <label class="block font-semibold text-slate-700 mb-1">Payment Mode</label>
-                                    <select id="fs-mode" class="w-full px-3 py-2.5 border rounded-xl bg-slate-50 font-medium">
+                                    <select id="fs-mode" class="w-full px-3.5 py-2.5 border rounded-xl bg-slate-50 font-medium">
                                         <option value="Cash (Hand)">Cash (In Hand)</option>
                                         <option value="Online UPI">Online Pay (UPI / Bank)</option>
                                         <option value="Partial Payment">Partial Payment (Credit)</option>
@@ -778,24 +796,64 @@
                                     </select>
                                 </div>
                                 <div>
-                                    <label class="block font-semibold text-slate-700 mb-1">Remaining Balance Due</label>
+                                    <label class="block font-semibold text-slate-700 mb-1">New Sale Balance Due</label>
                                     <div class="text-lg font-extrabold text-rose-600 mt-1.5">₹<span id="fs-display-balance">1450</span></div>
                                 </div>
                             </div>
 
                             <div class="flex justify-end gap-2 pt-3 border-t">
-                                <button type="button" onclick="closeFeedSaleModal()" class="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl font-semibold">Cancel</button>
-                                <button type="submit" class="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl font-semibold shadow">Save Feed Sale Entry</button>
+                                <button type="button" onclick="closeFeedSaleModal()" class="px-4 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl font-semibold">Cancel</button>
+                                <button type="submit" class="px-5 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl font-semibold shadow">Save Feed Sale Entry</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+
+                <!-- New Customer Quick Modal (Requirement 3) -->
+                <div id="quick-customer-modal" class="fixed inset-0 bg-slate-900/70 backdrop-blur-sm hidden items-center justify-center p-3 z-60">
+                    <div class="bg-white rounded-2xl max-w-md w-full p-6 shadow-2xl">
+                        <div class="flex justify-between items-center mb-4 border-b pb-3">
+                            <h3 class="text-base font-bold text-slate-900">Add New Customer</h3>
+                            <button onclick="closeQuickCustomerModal()" class="text-slate-400 hover:text-slate-700 font-bold text-xl">✕</button>
+                        </div>
+                        <form id="quick-customer-form" onsubmit="submitQuickCustomer(event)" class="space-y-3 text-xs">
+                            <div class="grid grid-cols-2 gap-3">
+                                <div>
+                                    <label class="block font-semibold text-slate-700 mb-1">Customer ID</label>
+                                    <input type="text" id="qc-id" value="F0${DEFAULT_STATE.farmers.length + 1}" required class="w-full px-3 py-2 border rounded-xl bg-slate-50">
+                                </div>
+                                <div>
+                                    <label class="block font-semibold text-slate-700 mb-1">Customer Name *</label>
+                                    <input type="text" id="qc-name" required class="w-full px-3 py-2 border rounded-xl bg-slate-50" placeholder="Full Name">
+                                </div>
+                            </div>
+                            <div class="grid grid-cols-2 gap-3">
+                                <div>
+                                    <label class="block font-semibold text-slate-700 mb-1">Mobile Number *</label>
+                                    <input type="text" id="qc-phone" required class="w-full px-3 py-2 border rounded-xl bg-slate-50" placeholder="9842123456">
+                                </div>
+                                <div>
+                                    <label class="block font-semibold text-slate-700 mb-1">Village *</label>
+                                    <input type="text" id="qc-village" required class="w-full px-3 py-2 border rounded-xl bg-slate-50" placeholder="Thadikombu">
+                                </div>
+                            </div>
+                            <div>
+                                <label class="block font-semibold text-slate-700 mb-1">Address</label>
+                                <input type="text" id="qc-address" class="w-full px-3 py-2 border rounded-xl bg-slate-50" placeholder="Street / Door No">
+                            </div>
+                            <div class="flex justify-end gap-2 pt-3 border-t">
+                                <button type="button" onclick="closeQuickCustomerModal()" class="px-4 py-2 bg-slate-100 text-slate-700 rounded-xl font-semibold">Cancel</button>
+                                <button type="submit" class="px-4 py-2 bg-emerald-600 text-white rounded-xl font-semibold shadow">Save & Select Customer</button>
                             </div>
                         </form>
                     </div>
                 </div>
 
                 <!-- Clear Due / Pay Modal -->
-                <div id="pay-feed-modal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm hidden items-center justify-center p-4 z-50">
+                <div id="pay-feed-modal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm hidden items-center justify-center p-3 z-50">
                     <div class="bg-white rounded-2xl max-w-sm w-full p-6 shadow-2xl">
                         <div class="flex justify-between items-center mb-4 border-b pb-3">
-                            <h3 class="text-lg font-bold text-slate-900">Record Payment / Clear Due</h3>
+                            <h3 class="text-base font-bold text-slate-900">Record Payment / Clear Due</h3>
                             <button onclick="closePayFeedModal()" class="text-slate-400 hover:text-slate-700 font-bold text-xl">✕</button>
                         </div>
                         <input type="hidden" id="pay-feed-tx-id">
@@ -810,10 +868,10 @@
                             </div>
                             <div>
                                 <label class="block font-semibold text-slate-700 mb-1">Payment Amount (₹)</label>
-                                <input type="number" id="pay-feed-amount" min="1" required class="w-full px-3 py-2.5 border rounded-xl bg-slate-50 font-bold text-emerald-600">
-                                <p class="text-[10px] text-slate-500 mt-1">Payment will be automatically applied to outstanding balances (oldest first).</p>
+                                <input type="number" id="pay-feed-amount" min="1" required class="w-full px-3 py-2.5 border rounded-xl bg-slate-50 font-bold text-emerald-600 text-sm">
+                                <p class="text-[10px] text-slate-500 mt-1">Payment is automatically applied to oldest unpaid balances first.</p>
                             </div>
-                            <button onclick="confirmClearFeedDue()" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white py-2.5 rounded-xl font-semibold shadow">Confirm Payment & Update Balance</button>
+                            <button onclick="confirmClearFeedDue()" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white py-2.5 rounded-xl font-semibold shadow">Confirm Payment</button>
                         </div>
                     </div>
                 </div>
@@ -829,39 +887,39 @@
 
             return `
                 <div class="space-y-6">
-                    <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200 flex justify-between items-center">
-                        <div class="flex items-center gap-4">
-                            <button onclick="setView('feed_sales')" class="bg-slate-100 hover:bg-slate-200 text-slate-700 px-3 py-2 rounded-xl text-xs font-semibold">← Back to Feed Sales</button>
+                    <div class="bg-white p-5 md:p-6 rounded-2xl shadow-sm border border-slate-200 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+                        <div class="flex items-center gap-3">
+                            <button onclick="setView('feed_sales')" class="bg-slate-100 hover:bg-slate-200 text-slate-700 px-3 py-2 rounded-xl text-xs font-semibold">← Back</button>
                             <div>
                                 <span class="text-xs bg-emerald-100 text-emerald-800 px-2 py-0.5 rounded font-bold">${f.id}</span>
-                                <h2 class="text-xl font-bold text-slate-900 mt-1">${f.name} — Credit Profile</h2>
+                                <h2 class="text-lg md:text-xl font-bold text-slate-900 mt-1">${f.name} — Credit Profile</h2>
                                 <p class="text-xs text-slate-500">Village: ${f.village || 'N/A'} | Mobile: ${f.phone || 'N/A'}</p>
                             </div>
                         </div>
-                        ${cb.outstandingBalance > 0 ? `<button onclick="openPayFeedModalForCustomer('${f.id}')" class="bg-emerald-600 hover:bg-emerald-700 text-white px-4 py-2.5 rounded-xl text-xs font-semibold shadow">Make Payment</button>` : ''}
+                        ${cb.outstandingBalance > 0 ? `<button onclick="openPayFeedModalForCustomer('${f.id}')" class="bg-emerald-600 hover:bg-emerald-700 text-white px-4 py-2.5 rounded-xl text-xs font-semibold shadow w-full sm:w-auto">Make Payment</button>` : ''}
                     </div>
 
-                    <!-- Customer KPI Cards (Rule 10 & 13) -->
-                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                        <div class="dairy-card p-5">
-                            <div class="text-xs font-semibold text-slate-500 uppercase">Total Purchases</div>
-                            <div class="text-2xl font-bold text-slate-900 mt-1">₹${cb.totalPurchases.toLocaleString()}</div>
+                    <!-- Customer KPI Cards -->
+                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 md:gap-4">
+                        <div class="dairy-card p-4">
+                            <div class="text-[11px] font-semibold text-slate-500 uppercase">Total Purchases</div>
+                            <div class="text-xl md:text-2xl font-bold text-slate-900 mt-1">₹${cb.totalPurchases.toLocaleString()}</div>
                         </div>
-                        <div class="dairy-card p-5">
-                            <div class="text-xs font-semibold text-slate-500 uppercase">Total Amount Paid</div>
-                            <div class="text-2xl font-bold text-emerald-600 mt-1">₹${cb.totalPaid.toLocaleString()}</div>
+                        <div class="dairy-card p-4">
+                            <div class="text-[11px] font-semibold text-slate-500 uppercase">Total Amount Paid</div>
+                            <div class="text-xl md:text-2xl font-bold text-emerald-600 mt-1">₹${cb.totalPaid.toLocaleString()}</div>
                         </div>
-                        <div class="dairy-card p-5">
-                            <div class="text-xs font-semibold text-slate-500 uppercase">Total Outstanding Balance Due</div>
-                            <div class="text-2xl font-bold text-rose-600 mt-1">₹${cb.outstandingBalance.toLocaleString()}</div>
+                        <div class="dairy-card p-4">
+                            <div class="text-[11px] font-semibold text-slate-500 uppercase">Total Outstanding Balance Due</div>
+                            <div class="text-xl md:text-2xl font-bold text-rose-600 mt-1">₹${cb.outstandingBalance.toLocaleString()}</div>
                         </div>
                     </div>
 
-                    <!-- Purchase History (Rule 10 & 11) -->
-                    <div class="dairy-card overflow-hidden p-6 space-y-4">
-                        <h3 class="font-bold text-slate-900 text-base">Individual Purchase History (${cb.sales.length} orders)</h3>
+                    <!-- Purchase History -->
+                    <div class="dairy-card p-4 md:p-6 space-y-4">
+                        <h3 class="font-bold text-slate-900 text-sm md:text-base">Individual Purchase History (${cb.sales.length} orders)</h3>
                         <div class="overflow-x-auto">
-                            <table class="w-full text-left border-collapse text-xs">
+                            <table class="w-full text-left border-collapse text-xs min-w-[500px]">
                                 <thead class="bg-slate-100">
                                     <tr>
                                         <th class="p-3">Tx ID & Date</th>
@@ -888,11 +946,11 @@
                         </div>
                     </div>
 
-                    <!-- Payment History (Rule 9 & 10) -->
-                    <div class="dairy-card overflow-hidden p-6 space-y-4">
-                        <h3 class="font-bold text-slate-900 text-base">Individual Payment History (${cb.payments.length} payments)</h3>
+                    <!-- Payment History -->
+                    <div class="dairy-card p-4 md:p-6 space-y-4">
+                        <h3 class="font-bold text-slate-900 text-sm md:text-base">Individual Payment History (${cb.payments.length} payments)</h3>
                         <div class="overflow-x-auto">
-                            <table class="w-full text-left border-collapse text-xs">
+                            <table class="w-full text-left border-collapse text-xs min-w-[400px]">
                                 <thead class="bg-slate-100">
                                     <tr>
                                         <th class="p-3">Payment ID</th>
@@ -934,6 +992,76 @@
             document.getElementById('feed-sale-modal').classList.remove('flex');
         }
 
+        function handleCustomerSelectChange(val) {
+            if (val === 'ADD_NEW') {
+                openAddCustomerFromSaleModal();
+            } else {
+                const cb = getCustomerBalance(val);
+                const banner = document.getElementById('existing-balance-banner');
+                if (cb.outstandingBalance > 0) {
+                    document.getElementById('banner-customer-name').innerText = DEFAULT_STATE.farmers.find(f => f.id === val)?.name || 'Customer';
+                    document.getElementById('banner-customer-due').innerText = '₹' + cb.outstandingBalance.toLocaleString();
+                    banner.classList.remove('hidden');
+                } else {
+                    banner.classList.add('hidden');
+                }
+            }
+        }
+
+        function openAddCustomerFromSaleModal() {
+            document.getElementById('quick-customer-modal').classList.remove('hidden');
+            document.getElementById('quick-customer-modal').classList.add('flex');
+        }
+
+        function closeQuickCustomerModal() {
+            document.getElementById('quick-customer-modal').classList.add('hidden');
+            document.getElementById('quick-customer-modal').classList.remove('flex');
+        }
+
+        function submitQuickCustomer(e) {
+            e.preventDefault();
+            const id = document.getElementById('qc-id').value.trim();
+            const name = document.getElementById('qc-name').value.trim();
+            const phone = document.getElementById('qc-phone').value.trim();
+            const village = document.getElementById('qc-village').value.trim();
+            const address = document.getElementById('qc-address').value.trim();
+
+            if (DEFAULT_STATE.farmers.some(f => f.phone === phone)) {
+                alert("Warning: A customer with this mobile number already exists!");
+            }
+
+            const newCust = {
+                id,
+                name,
+                phone,
+                village,
+                address,
+                animalType: "Cow",
+                cows: 1,
+                buffaloes: 0,
+                regDate: new Date().toISOString().split('T')[0],
+                bank: "SBI - ACC",
+                upi: "upi@ok",
+                status: "Active"
+            };
+
+            DEFAULT_STATE.farmers.push(newCust);
+            saveState();
+            closeQuickCustomerModal();
+
+            // Auto-select in Feed Sale dropdown
+            const select = document.getElementById('fs-farmer-id');
+            if (select) {
+                select.innerHTML = `
+                    <option value="" disabled>-- Select Customer --</option>
+                    <option value="ADD_NEW" class="font-bold text-emerald-700 bg-emerald-50">➕ + Add New Customer</option>
+                    ${DEFAULT_STATE.farmers.map(f => `<option value="${f.id}" ${f.id === id ? 'selected' : ''}>${f.id} - ${f.name} (${f.village})</option>`).join('')}
+                `;
+                handleCustomerSelectChange(id);
+            }
+            renderApp();
+        }
+
         function updateFeedSaleCalc() {
             const feedSelect = document.getElementById('fs-feed-id');
             const bagsInput = document.getElementById('fs-bags');
@@ -959,6 +1087,10 @@
         function submitFeedSale(e) {
             e.preventDefault();
             const farmerId = document.getElementById('fs-farmer-id').value;
+            if (!farmerId || farmerId === 'ADD_NEW') {
+                alert("Please select a valid customer.");
+                return;
+            }
             const farmer = DEFAULT_STATE.farmers.find(f => f.id === farmerId);
             const feedSelect = document.getElementById('fs-feed-id');
             const feedName = feedSelect.options[feedSelect.selectedIndex].text.split(' (')[0];
@@ -1013,7 +1145,6 @@
             document.getElementById('pay-feed-modal').classList.remove('flex');
         }
 
-        // Rule 4, 5, 9, 14: Payment distribution (FIFO / oldest unpaid first)
         function confirmClearFeedDue() {
             const txId = document.getElementById('pay-feed-tx-id').value;
             const customerId = document.getElementById('pay-feed-customer-id').value;
@@ -1026,7 +1157,6 @@
             }
 
             if (txId) {
-                // Single transaction payment
                 const tx = DEFAULT_STATE.feedSales.find(s => s.id === txId);
                 if (tx) {
                     if (payAmount > tx.balanceDue) {
@@ -1047,7 +1177,6 @@
                     });
                 }
             } else if (customerId) {
-                // General customer account payment (distribute oldest unpaid first - FIFO)
                 const cb = getCustomerBalance(customerId);
                 if (payAmount > cb.outstandingBalance) {
                     alert(`Payment cannot exceed total outstanding balance of ₹${cb.outstandingBalance}`);
@@ -1057,7 +1186,6 @@
                 let remainingPayment = payAmount;
                 const customerSales = DEFAULT_STATE.feedSales.filter(s => s.farmerId === customerId && s.balanceDue > 0);
 
-                // Distribute payment across unpaid transactions (oldest first)
                 for (let tx of customerSales) {
                     if (remainingPayment <= 0) break;
                     const applyAmt = Math.min(remainingPayment, tx.balanceDue);
@@ -1086,8 +1214,13 @@
         function filterFeedTable() {
             const q = document.getElementById('feed-search').value.toLowerCase();
             const rows = document.querySelectorAll('#feed-table-body tr');
+            const mobileItems = document.querySelectorAll('.feed-mobile-item');
+
             rows.forEach(r => {
                 r.style.display = r.innerText.toLowerCase().includes(q) ? '' : 'none';
+            });
+            mobileItems.forEach(m => {
+                m.style.display = m.innerText.toLowerCase().includes(q) ? '' : 'none';
             });
         }
 
